@@ -2,7 +2,7 @@
 
 Плагин для OPNsense: HTTP-мониторинг шлюзов через GUI.
 Отображает RTT / RTTd / Loss в `System → Gateways → Configuration`
-для шлюзов которые не поддерживают ICMP (tun2socks, AmneziaWG и др.).
+для шлюзов которые не поддерживают ICMP.
 
 ## Установка
 
