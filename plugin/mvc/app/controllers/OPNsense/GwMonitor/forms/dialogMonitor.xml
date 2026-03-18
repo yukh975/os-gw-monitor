@@ -1,0 +1,60 @@
+<form>
+    <field>
+        <id>monitor.enabled</id>
+        <label>Enabled</label>
+        <type>checkbox</type>
+    </field>
+    <field>
+        <id>monitor.gw_name</id>
+        <label>Gateway Name</label>
+        <type>dropdown</type>
+        <help>Select the gateway to monitor (must match System → Gateways)</help>
+    </field>
+    <field>
+        <id>monitor.probe_if</id>
+        <label>Interface</label>
+        <type>dropdown</type>
+        <help>Network interface to bind the HTTP probe</help>
+    </field>
+    <field>
+        <id>monitor.probe_host</id>
+        <label>Probe Host</label>
+        <type>text</type>
+        <help>IP address or hostname to probe via HTTP</help>
+        <hint>e.g. 1.1.1.1</hint>
+    </field>
+    <field>
+        <id>monitor.probe_port</id>
+        <label>Probe Port</label>
+        <type>text</type>
+        <help>TCP port for HTTP probe</help>
+        <hint>Default: 80</hint>
+    </field>
+    <field>
+        <id>monitor.probe_count</id>
+        <label>Probe Count</label>
+        <type>text</type>
+        <help>Number of HTTP probes per measurement cycle (1–20)</help>
+        <hint>Default: 5</hint>
+    </field>
+    <field>
+        <id>monitor.probe_interval</id>
+        <label>Interval (s)</label>
+        <type>text</type>
+        <help>Seconds between measurement cycles (5–300)</help>
+        <hint>Default: 25</hint>
+    </field>
+    <field>
+        <id>monitor.probe_timeout</id>
+        <label>Timeout (s)</label>
+        <type>text</type>
+        <help>Curl connect+transfer timeout per probe in seconds (1–30)</help>
+        <hint>Default: 5</hint>
+    </field>
+    <field>
+        <id>monitor.description</id>
+        <label>Description</label>
+        <type>text</type>
+        <help>Optional description for this monitor</help>
+    </field>
+</form>
