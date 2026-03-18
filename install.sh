@@ -9,22 +9,32 @@
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
 OPNSENSE_MVC="/usr/local/opnsense/mvc/app"
 
-do_install() {
-    echo "=== Installing os-gw-monitor ==="
+PLUGIN_VERSION="1.0.5"
+VERSION_FILE="/usr/local/sbin/gwmonitor-version"
 
-    # Python-демон зондирования
+do_install() {
+    # Проверить установленную версию
+    if [ -f "$VERSION_FILE" ]; then
+        INSTALLED_VERSION="$(cat $VERSION_FILE | tr -d '[:space:]')"
+        if [ "$INSTALLED_VERSION" = "$PLUGIN_VERSION" ]; then
+            echo "os-gw-monitor v${PLUGIN_VERSION} already installed, skipping."
+            exit 0
+        fi
+        echo "Upgrading os-gw-monitor from v${INSTALLED_VERSION} to v${PLUGIN_VERSION}..."
+        # Удалить старую версию сохранив настройки
+        do_uninstall_silent
+    fi
+    echo "=== Installing os-gw-monitor v${PLUGIN_VERSION} ==="
+
+    # Скрипты в /usr/local/sbin
     install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gw_monitor_probe.py" \
         "/usr/local/sbin/gw_monitor_probe.py"
-
-    # PHP скрипт списка интерфейсов
-    install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-list-interfaces.php" \
-        "/usr/local/sbin/gwmonitor-list-interfaces.php"
-
-    # PHP backend
-    install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-list-interfaces.php" \
-        "/usr/local/sbin/gwmonitor-list-interfaces.php"
     install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-service.php" \
         "/usr/local/sbin/gwmonitor-service.php"
+    install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-list-interfaces.php" \
+        "/usr/local/sbin/gwmonitor-list-interfaces.php"
+    install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-cleanup.php" \
+        "/usr/local/sbin/gwmonitor-cleanup.php"
 
     # MVC модель
     mkdir -p "${OPNSENSE_MVC}/models/OPNsense/GwMonitor/Menu"
@@ -35,15 +45,15 @@ do_install() {
     install -m 0644 "${PLUGIN_DIR}/mvc/app/models/OPNsense/GwMonitor/Menu/Menu.xml" \
         "${OPNSENSE_MVC}/models/OPNsense/GwMonitor/Menu/Menu.xml"
 
-    # MVC форма диалога
+    # MVC форма
     mkdir -p "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/forms"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/forms/dialogMonitor.xml" \
         "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/forms/dialogMonitor.xml"
 
     # MVC контроллеры
-    mkdir -p "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/Api"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/IndexController.php" \
         "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/IndexController.php"
+    mkdir -p "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/Api"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/Api/MonitorController.php" \
         "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/Api/MonitorController.php"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/Api/ServiceController.php" \
@@ -62,66 +72,107 @@ do_install() {
     install -m 0644 "${PLUGIN_DIR}/service/conf/actions.d/actions_gwmonitor.conf" \
         "/usr/local/opnsense/service/conf/actions.d/actions_gwmonitor.conf"
 
-    # Перезапуск configd и очистка кешей
     echo "  Restarting configd..."
-    service configd restart
-    sleep 1
+    /usr/local/sbin/pluginctl configd restart
+    sleep 3
 
     echo "  Clearing caches..."
     rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /tmp/opnsense_acl_cache.json 2>/dev/null
-    rm -f /var/run/booting 2>/dev/null
+    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
 
     echo "  Starting monitors..."
-    sleep 1
-    # Перезапускаем весь мониторинг шлюзов через pluginctl
-    # Это запустит dpinger для штатных шлюзов И вызовет наш хук gw_monitor_configure_do
-    /usr/local/sbin/pluginctl -c monitor
+    /usr/local/sbin/pluginctl -c monitor > /dev/null || true
     sleep 2
     /usr/local/sbin/gwmonitor-service.php reconfigure
 
+    # Записать версию
+    install -m 0644 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-version" \
+        "/usr/local/sbin/gwmonitor-version"
+
+    echo "  Final configd restart..."
+    service configd restart
+    sleep 1
+
     echo ""
-    echo "=== Installation complete ==="
+    echo "=== Installation complete (v1.0.5) ==="
     echo ""
     echo "Refresh browser (Ctrl+F5) and go to:"
     echo "  System → Gateways → Monitoring"
     echo ""
-    echo "Add monitors via GUI, click Apply."
     echo "Add watchdog in Cron:"
     echo "  System → Settings → Cron → Command: GW Monitor Watchdog, all fields: *"
+}
+
+do_uninstall_silent() {
+    # Тихое удаление при обновлении — всегда сохраняет настройки
+    pkill -f "gw_monitor_probe.py" > /dev/null || true
+    sleep 1
+    php /usr/local/sbin/gwmonitor-cleanup.php
+    rm -f /usr/local/sbin/gw_monitor_probe.py
+    rm -f /usr/local/sbin/gwmonitor-service.php
+    rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
+    rm -f /usr/local/sbin/gwmonitor-cleanup.php
+    rm -f /usr/local/sbin/gwmonitor-version
+    rm -f /usr/local/sbin/gwmonitor-version
+    rm -rf "${OPNSENSE_MVC}/models/OPNsense/GwMonitor"
+    rm -rf "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor"
+    rm -rf "${OPNSENSE_MVC}/views/OPNsense/GwMonitor"
+    rm -f /usr/local/etc/inc/plugins.inc.d/gw_monitor.inc
+    rm -f /usr/local/opnsense/service/conf/actions.d/actions_gwmonitor.conf
+    killall -9 gateway_watcher.php > /dev/null 2> /dev/null || true
+    rm -f /tmp/gateways.status
+    rm -f /tmp/opnsense_menu_cache.xml
+    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
 }
 
 do_uninstall() {
     echo "=== Uninstalling os-gw-monitor ==="
 
-    # Остановить все инстансы
-    pkill -f "gw_monitor_probe.py" 2>/dev/null || true
-    rm -f /var/run/dpinger_*.pid /var/run/dpinger_*.sock
+    echo ""
+    echo "What to do with monitor settings stored in config.xml?"
+    echo "  [k] Keep   - settings will be restored on next install (default)"
+    echo "  [d] Delete - remove all monitor instances from config.xml"
+    echo ""
+    printf "Choice [k/d]: "
+    read PURGE_CHOICE
 
-    # Удалить файлы
+    echo "  Stopping monitors..."
+    pkill -f "gw_monitor_probe.py" > /dev/null || true
+    sleep 1
+
+    echo "  Clearing gateway status and sockets..."
+    case "$PURGE_CHOICE" in
+        d|D)
+            php /usr/local/sbin/gwmonitor-cleanup.php --purge
+            ;;
+        *)
+            php /usr/local/sbin/gwmonitor-cleanup.php
+            echo "  Settings kept in config.xml for future use."
+            ;;
+    esac
+
+    echo "  Removing plugin files..."
     rm -f /usr/local/sbin/gw_monitor_probe.py
     rm -f /usr/local/sbin/gwmonitor-service.php
     rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
-    rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
+    rm -f /usr/local/sbin/gwmonitor-cleanup.php
     rm -rf "${OPNSENSE_MVC}/models/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/views/OPNsense/GwMonitor"
     rm -f /usr/local/etc/inc/plugins.inc.d/gw_monitor.inc
     rm -f /usr/local/opnsense/service/conf/actions.d/actions_gwmonitor.conf
 
-    # Кеши и логи
-    rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /var/log/gwmonitor_*.log
-    rm -f /var/log/tun2socks_socket.log
+    echo "  Restoring standard gateway monitoring..."
+    killall -9 gateway_watcher.php > /dev/null 2> /dev/null || true
+    rm -f /tmp/gateways.status
+    sleep 1
+    /usr/local/sbin/pluginctl -c monitor > /dev/null || true
 
     echo "  Clearing caches..."
     rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /tmp/opnsense_acl_cache.json 2>/dev/null
-    rm -f /var/run/booting 2>/dev/null
+    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
+    rm -f /var/log/gwmonitor_*.log || true
 
-    echo "  Clearing caches..."
-    rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /tmp/opnsense_acl_cache.json 2>/dev/null
     echo "  Restarting configd..."
     service configd restart
 
