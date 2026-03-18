@@ -80,9 +80,9 @@ sh install.sh
 
 Нажмите **Apply** — мониторы запустятся автоматически.
 
-### 2. Для AmneziaWG
+### 2. Отключение мониторинга шлюза (обязательно)
 
-В настройках шлюза `System → Gateways → AMNEZIA_GW → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
+В настройках шлюза `System → Gateways → ВАШ_GW → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
 
 ### 3. Добавить watchdog в Cron
 
@@ -192,4 +192,4 @@ BSD 2-Clause
 
 ## Автор
 
-Разработано совместно с Claude (Anthropic), 2026.
+Yuriy Khachaturian, 2026.
