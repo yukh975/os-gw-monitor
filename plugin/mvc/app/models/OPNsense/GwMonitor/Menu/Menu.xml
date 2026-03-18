@@ -1,8 +1,0 @@
-<menu>
-    <System>
-        <Gateways>
-            <Monitoring order="30" url="/ui/gwmonitor/" cssClass="fa fa-heartbeat fa-fw">
-            </Monitoring>
-        </Gateways>
-    </System>
-</menu>
