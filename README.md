@@ -7,8 +7,8 @@
 ## Установка
 
 ```sh
-fetch -o /tmp/os-gw-monitor.tar https://github.com/.../os-gw-monitor.tar
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+git clone https://github.com/yukh975/os-gw-monitor/
+cd os-gw-monitor
 sh install.sh
 ```
 
