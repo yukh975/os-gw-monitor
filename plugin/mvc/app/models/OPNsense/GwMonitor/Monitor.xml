@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<model>
+    <mount>//OPNsense/GwMonitor</mount>
+    <description>Gateway HTTP Monitor</description>
+    <version>1.0.5</version>
+    <items>
+        <monitors type="ArrayField">
+            <enabled type="BooleanField">
+                <Default>1</Default>
+                <Required>Y</Required>
+            </enabled>
+            <gw_name type="JsonKeyValueStoreField">
+                <Required>Y</Required>
+                <ConfigdPopulateAct>interface gateways list</ConfigdPopulateAct>
+                <ValidationMessage>Select a gateway from the list</ValidationMessage>
+            </gw_name>
+            <probe_if type="JsonKeyValueStoreField">
+                <Required>Y</Required>
+                <ConfigdPopulateAct>gwmonitor listinterfaces</ConfigdPopulateAct>
+                <ValidationMessage>Select an interface from the list</ValidationMessage>
+            </probe_if>
+            <probe_host type="TextField">
+                <Required>Y</Required>
+                <Default>1.1.1.1</Default>
+                <Mask>/^[a-zA-Z0-9]([a-zA-Z0-9\-\.]{0,251}[a-zA-Z0-9])?$|^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/</Mask>
+                <ValidationMessage>Must be a valid hostname or IPv4 address</ValidationMessage>
+            </probe_host>
+            <probe_port type="PortField">
+                <Required>Y</Required>
+                <Default>80</Default>
+            </probe_port>
+            <probe_count type="IntegerField">
+                <Required>Y</Required>
+                <Default>5</Default>
+                <MinimumValue>1</MinimumValue>
+                <MaximumValue>20</MaximumValue>
+            </probe_count>
+            <probe_interval type="IntegerField">
+                <Required>Y</Required>
+                <Default>25</Default>
+                <MinimumValue>5</MinimumValue>
+                <MaximumValue>300</MaximumValue>
+            </probe_interval>
+            <probe_timeout type="IntegerField">
+                <Required>Y</Required>
+                <Default>5</Default>
+                <MinimumValue>1</MinimumValue>
+                <MaximumValue>30</MaximumValue>
+            </probe_timeout>
+            <description type="TextField">
+                <Required>N</Required>
+                <Default></Default>
+            </description>
+        </monitors>
+    </items>
+</model>
