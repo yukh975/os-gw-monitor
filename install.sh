@@ -1,9 +1,9 @@
 #!/bin/sh
 # =============================================================
 # os-gw-monitor install.sh
-# Использование:
-#   sh install.sh           — установка
-#   sh install.sh uninstall — удаление
+# Usage:
+#   sh install.sh           — install
+#   sh install.sh uninstall — uninstall
 # =============================================================
 
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
@@ -13,7 +13,7 @@ PLUGIN_VERSION="1.0.7"
 VERSION_FILE="/var/db/gwmonitor-version"
 
 do_install() {
-    # Проверить установленную версию
+    # Check installed version
     if [ -f "$VERSION_FILE" ]; then
         INSTALLED_VERSION="$(cat $VERSION_FILE | tr -d '[:space:]')"
         if [ "$INSTALLED_VERSION" = "$PLUGIN_VERSION" ]; then
@@ -21,12 +21,12 @@ do_install() {
             exit 0
         fi
         echo "Upgrading os-gw-monitor from v${INSTALLED_VERSION} to v${PLUGIN_VERSION}..."
-        # Удалить старую версию сохранив настройки
+        # Remove old version preserving settings
         do_uninstall_silent
     fi
     echo "=== Installing os-gw-monitor v${PLUGIN_VERSION} ==="
 
-    # Скрипты в /usr/local/sbin
+    # Scripts in /usr/local/sbin
     install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gw_monitor_probe.py" \
         "/usr/local/sbin/gw_monitor_probe.py"
     install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-service.php" \
@@ -36,7 +36,7 @@ do_install() {
     install -m 0755 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-cleanup.php" \
         "/usr/local/sbin/gwmonitor-cleanup.php"
 
-    # MVC модель
+    # MVC model
     mkdir -p "${OPNSENSE_MVC}/models/OPNsense/GwMonitor/Menu"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/models/OPNsense/GwMonitor/Monitor.xml" \
         "${OPNSENSE_MVC}/models/OPNsense/GwMonitor/Monitor.xml"
@@ -45,12 +45,12 @@ do_install() {
     install -m 0644 "${PLUGIN_DIR}/mvc/app/models/OPNsense/GwMonitor/Menu/Menu.xml" \
         "${OPNSENSE_MVC}/models/OPNsense/GwMonitor/Menu/Menu.xml"
 
-    # MVC форма
+    # MVC form
     mkdir -p "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/forms"
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/forms/dialogMonitor.xml" \
         "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/forms/dialogMonitor.xml"
 
-    # MVC контроллеры
+    # MVC controllers
     install -m 0644 "${PLUGIN_DIR}/mvc/app/controllers/OPNsense/GwMonitor/IndexController.php" \
         "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/IndexController.php"
     mkdir -p "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor/Api"
@@ -85,7 +85,7 @@ do_install() {
     sleep 2
     /usr/local/sbin/gwmonitor-service.php reconfigure
 
-    # Записать версию
+    # Write version file
     install -m 0644 "${PLUGIN_DIR}/var/db/gwmonitor-version" \
         "/var/db/gwmonitor-version"
 
@@ -94,7 +94,7 @@ do_install() {
     sleep 1
 
     echo ""
-    echo "=== Installation complete (v1.0.7) ==="
+    echo "=== Installation complete (v${PLUGIN_VERSION}) ==="
     echo ""
     echo "Refresh browser (Ctrl+F5) and go to:"
     echo "  System → Gateways → Monitoring"
@@ -104,7 +104,7 @@ do_install() {
 }
 
 do_uninstall_silent() {
-    # Тихое удаление при обновлении — всегда сохраняет настройки
+    # Silent removal during upgrade — always preserves settings
     pkill -f "gw_monitor_probe.py" > /dev/null || true
     sleep 1
     php /usr/local/sbin/gwmonitor-cleanup.php
@@ -112,7 +112,6 @@ do_uninstall_silent() {
     rm -f /usr/local/sbin/gwmonitor-service.php
     rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
     rm -f /usr/local/sbin/gwmonitor-cleanup.php
-    rm -f /var/db/gwmonitor-version
     rm -f /var/db/gwmonitor-version
     rm -rf "${OPNSENSE_MVC}/models/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor"
@@ -156,6 +155,7 @@ do_uninstall() {
     rm -f /usr/local/sbin/gwmonitor-service.php
     rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
     rm -f /usr/local/sbin/gwmonitor-cleanup.php
+    rm -f /var/db/gwmonitor-version
     rm -rf "${OPNSENSE_MVC}/models/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/views/OPNsense/GwMonitor"
