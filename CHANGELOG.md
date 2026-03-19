@@ -31,7 +31,7 @@ All notable changes to os-gw-monitor are documented here.
 
 ---
 
-## [1.0.5] — 2026-03-19
+## [1.0.5] — 2026-03-18
 
 ### Added
 - `README.md` — full plugin documentation (Russian)
@@ -41,21 +41,21 @@ All notable changes to os-gw-monitor are documented here.
 
 ---
 
-## [1.0.4] — 2026-03-19
+## [1.0.4] — 2026-03-18
 
 ### Fixed
 - `killall gateway_watcher.php` output (`No matching processes were found`) no longer shown during uninstall — both stdout and stderr now suppressed
 
 ---
 
-## [1.0.3] — 2026-03-19
+## [1.0.3] — 2026-03-18
 
 ### Fixed
 - Noisy output from `pkill`, `killall`, and `pluginctl -c monitor` suppressed during install and uninstall
 
 ---
 
-## [1.0.2] — 2026-03-19
+## [1.0.2] — 2026-03-18
 
 ### Added
 - Version check on install: if the same version is already installed, installation is skipped
@@ -66,7 +66,7 @@ All notable changes to os-gw-monitor are documented here.
 
 ---
 
-## [1.0.1] — 2026-03-19
+## [1.0.1] — 2026-03-18
 
 ### Added
 - Initial plugin release
