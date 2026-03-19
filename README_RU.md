@@ -93,7 +93,7 @@ sh install.sh
 
 ### 2. Для AmneziaWG
 
-В настройках шлюза `System → Gateways → GATEWAY_NAME → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
+В настройках шлюза `System → Gateways → GW_NAME → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
 
 ### 3. Добавить watchdog в Cron
 
@@ -158,7 +158,7 @@ configctl gwmonitor stop <uuid>
 configctl gwmonitor watchdog
 
 # Логи
-tail -f /var/log/gwmonitor_GATEWAY_NAME.log
+tail -f /var/log/gwmonitor_GW_NAME.log
 ```
 
 ---

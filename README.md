@@ -91,9 +91,9 @@ Go to `System → Gateways → Monitoring`, click **+** and fill in the form:
 
 Click **Apply** — monitors will start automatically.
 
-### 2. For AmneziaWG
+### 2. Disable standard gateway monitoring
 
-In the gateway settings under `System → Gateways → GATEWAY_NAME → Edit`, enable **Disable Gateway Monitoring** to turn off the built-in dpinger and avoid conflicts.
+For each gateway you plan to monitor with this plugin, go to `System → Gateways → Configuration → Edit` and enable **Disable Gateway Monitoring**. This turns off the built-in dpinger for that gateway and prevents conflicts with the plugin.
 
 ### 3. Add watchdog to Cron
 
@@ -158,7 +158,7 @@ configctl gwmonitor stop <uuid>
 configctl gwmonitor watchdog
 
 # Logs
-tail -f /var/log/gwmonitor_GATEWAY_NAME.log
+tail -f /var/log/gwmonitor_GW_NAME.log
 ```
 
 ---
