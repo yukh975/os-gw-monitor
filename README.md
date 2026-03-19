@@ -106,7 +106,8 @@ sh install.sh
 3. Устанавливает новую версию
 
 ```sh
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+cd os-gw-monitor
+git pull
 sh install.sh
 ```
 
