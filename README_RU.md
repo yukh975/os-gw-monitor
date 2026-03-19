@@ -218,6 +218,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 Юрий Хачатурян, 2026.
 
+При поддержке [Claude.ai](https://claude.ai).
+
 ---
 
 🌐 [English](README.md) | **Русский**
