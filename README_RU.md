@@ -31,7 +31,7 @@ OPNsense dpinger_status()
 System → Gateways → Configuration (RTT / RTTd / Loss)
 ```
 
-> **GW_NAME** — имя шлюза в OPNsense, например `TUN2SOCKS_GW` или `AMNEZIA_GW`.
+> **GW_NAME** — имя вашего шлюза в OPNsense.
 
 ---
 

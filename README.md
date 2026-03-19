@@ -31,7 +31,7 @@ OPNsense dpinger_status()
 System → Gateways → Configuration (RTT / RTTd / Loss)
 ```
 
-> **GW_NAME** — the name of your gateway in OPNsense, e.g. `TUN2SOCKS_GW` or `AMNEZIA_GW`.
+> **GW_NAME** — the name of your gateway in OPNsense.
 
 ---
 
