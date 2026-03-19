@@ -1,5 +1,11 @@
 # os-gw-monitor v. 1.0.5
 
+![Version](https://img.shields.io/badge/release-v1.0.5-blue)
+![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)
+![FreeBSD](https://img.shields.io/badge/FreeBSD-14.3-red)
+![License](https://img.shields.io/badge/license-BSD--2--Clause-green)
+
+
 **HTTP-мониторинг шлюзов для OPNsense** — плагин для отображения RTT, RTTd и Loss в `System → Gateways → Configuration` для шлюзов, которые не поддерживают ICMP-мониторинг штатным `dpinger`.
 
 Типичные случаи применения: tun2socks (xray-core, sing-box), AmneziaWG, любые туннельные интерфейсы где ICMP недоступен или нежелателен.
