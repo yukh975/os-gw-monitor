@@ -4,7 +4,6 @@ This project is licensed under the **BSD 2-Clause License** — see the details 
 
 ---
 
-```
 BSD 2-Clause License
 
 Copyright (c) [year], [copyright holder]
@@ -31,4 +30,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
-```
+
