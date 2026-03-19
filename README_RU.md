@@ -63,9 +63,9 @@ System → Gateways → Configuration (RTT / RTTd / Loss)
 git clone https://github.com/yukh975/os-gw-monitor
 cd os-gw-monitor
 sh install.sh
-
-Также можно скачать последний релиз, распаковать и установить вручную. 
 ```
+
+Также можно скачать последний релиз, распаковать и установить вручную.
 
 После завершения установки обновите браузер **Ctrl+F5**.
 
@@ -170,7 +170,9 @@ tail -f /var/log/gwmonitor_GATEWAY_NAME.log
 ├── gw_monitor_probe.py           # Демон зондирования + Unix-сокет сервер
 ├── gwmonitor-service.php         # Бэкенд: управление инстансами
 ├── gwmonitor-list-interfaces.php # Список интерфейсов для GUI
-├── gwmonitor-cleanup.php         # Очистка при удалении
+└── gwmonitor-cleanup.php         # Очистка при удалении
+
+/var/db/
 └── gwmonitor-version             # Текущая версия плагина
 
 /usr/local/etc/inc/plugins.inc.d/
@@ -199,7 +201,7 @@ tail -f /var/log/gwmonitor_GATEWAY_NAME.log
 
 BSD 2-Clause License
 
-Copyright (c) 2026 Merkulov Pavel Sergeevich
+Copyright (c) 2026 Yuriy Khachaturian
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
 

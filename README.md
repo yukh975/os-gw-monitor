@@ -11,7 +11,7 @@
 
 **HTTP-based gateway monitoring plugin for OPNsense** — displays RTT, RTTd and Loss in `System → Gateways → Configuration` for gateways that do not support ICMP monitoring via the built-in `dpinger`.
 
-Typical use cases: tun2socks (xray-core, sing-box), AmneziaWG, and any tunnel interfaces where ICMP is unavailable or undesirable.
+Typical use cases: tun2socks (xray-core, sing-box), and any tunnel interfaces where ICMP is unavailable or undesirable.
 
 ---
 
@@ -60,10 +60,12 @@ System → Gateways → Configuration (RTT / RTTd / Loss)
 ## Installation
 
 ```sh
-fetch -o /tmp/os-gw-monitor.tar https://github.com/<user>/os-gw-monitor/releases/latest/download/os-gw-monitor.tar
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+git clone https://github.com/yukh975/os-gw-monitor
+cd os-gw-monitor
 sh install.sh
 ```
+
+You can also download the latest release, extract it and install manually.
 
 After installation completes, refresh your browser with **Ctrl+F5**.
 
@@ -91,7 +93,7 @@ Click **Apply** — monitors will start automatically.
 
 ### 2. For AmneziaWG
 
-In the gateway settings under `System → Gateways → AMNEZIA_GW → Edit`, enable **Disable Gateway Monitoring** to turn off the built-in dpinger and avoid conflicts.
+In the gateway settings under `System → Gateways → GATEWAY_NAME → Edit`, enable **Disable Gateway Monitoring** to turn off the built-in dpinger and avoid conflicts.
 
 ### 3. Add watchdog to Cron
 
@@ -115,7 +117,8 @@ When installing a new version over an existing one, the script automatically:
 3. Installs the new version
 
 ```sh
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+cd os-gw-monitor
+git pull
 sh install.sh
 ```
 
@@ -155,8 +158,7 @@ configctl gwmonitor stop <uuid>
 configctl gwmonitor watchdog
 
 # Logs
-tail -f /var/log/gwmonitor_TUN2SOCKS_GW.log
-tail -f /var/log/gwmonitor_AMNEZIA_GW.log
+tail -f /var/log/gwmonitor_GATEWAY_NAME.log
 ```
 
 ---
@@ -197,13 +199,22 @@ The plugin uses `curl --no-keepalive -w %{time_starttransfer}` — time to first
 
 ## License
 
-BSD 2-Clause
+BSD 2-Clause License
+
+Copyright (c) 2026 Yuriy Khachaturian
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 
 ---
 
 ## Author
 
-Developed by Yuriy Khachaturian, 2026.
+Yuriy Khachaturian, 2026.
 
 ---
 
