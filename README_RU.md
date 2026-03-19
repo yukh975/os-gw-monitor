@@ -2,7 +2,12 @@
 
 ---
 
-# os-gw-monitor
+# os-gw-monitor 1.0.6
+
+[![Version](https://img.shields.io/badge/release-v1.0.5-blue)](https://github.com/yukh975/os-gw-monitor/releases)
+[![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)](https://opnsense.org)
+[![FreeBSD](https://img.shields.io/badge/FreeBSD-14.3-red)](https://freebsd.org)
+[![License](https://img.shields.io/badge/license-BSD--2--Clause-green)](https://github.com/yukh975/os-gw-monitor/blob/main/LICENSE.md)
 
 **HTTP-мониторинг шлюзов для OPNsense** — плагин для отображения RTT, RTTd и Loss в `System → Gateways → Configuration` для шлюзов, которые не поддерживают ICMP-мониторинг штатным `dpinger`.
 
