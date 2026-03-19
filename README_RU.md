@@ -11,7 +11,7 @@
 
 **HTTP-мониторинг шлюзов для OPNsense** — плагин для отображения RTT, RTTd и Loss в `System → Gateways → Configuration` для шлюзов, которые не поддерживают ICMP-мониторинг штатным `dpinger`.
 
-Типичные случаи применения: tun2socks (xray-core, sing-box), AmneziaWG, любые туннельные интерфейсы где ICMP недоступен или нежелателен.
+Типичные случаи применения: tun2socks (xray-core, sing-box), а также любые туннельные интерфейсы где ICMP недоступен или нежелателен.
 
 ---
 
@@ -60,9 +60,11 @@ System → Gateways → Configuration (RTT / RTTd / Loss)
 ## Установка
 
 ```sh
-fetch -o /tmp/os-gw-monitor.tar https://github.com/<user>/os-gw-monitor/releases/latest/download/os-gw-monitor.tar
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+git clone https://github.com/yukh975/os-gw-monitor
+cd os-gw-monitor
 sh install.sh
+
+Также можно скачать последний релиз, распаковать и установить вручную. 
 ```
 
 После завершения установки обновите браузер **Ctrl+F5**.
@@ -91,7 +93,7 @@ sh install.sh
 
 ### 2. Для AmneziaWG
 
-В настройках шлюза `System → Gateways → AMNEZIA_GW → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
+В настройках шлюза `System → Gateways → GATEWAY_NAME → Edit` установите **Disable Gateway Monitoring** чтобы отключить штатный dpinger и избежать конфликта.
 
 ### 3. Добавить watchdog в Cron
 
@@ -115,7 +117,8 @@ sh install.sh
 3. Устанавливает новую версию
 
 ```sh
-cd /tmp && tar xf os-gw-monitor.tar && cd os-gw-monitor
+cd os-gw-monitor
+git pull
 sh install.sh
 ```
 
@@ -155,8 +158,7 @@ configctl gwmonitor stop <uuid>
 configctl gwmonitor watchdog
 
 # Логи
-tail -f /var/log/gwmonitor_TUN2SOCKS_GW.log
-tail -f /var/log/gwmonitor_AMNEZIA_GW.log
+tail -f /var/log/gwmonitor_GATEWAY_NAME.log
 ```
 
 ---
