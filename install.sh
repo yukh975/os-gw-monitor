@@ -9,8 +9,8 @@
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
 OPNSENSE_MVC="/usr/local/opnsense/mvc/app"
 
-PLUGIN_VERSION="1.0.5"
-VERSION_FILE="/usr/local/sbin/gwmonitor-version"
+PLUGIN_VERSION="1.0.6"
+VERSION_FILE="/var/db/gwmonitor-version"
 
 do_install() {
     # Проверить установленную версию
@@ -86,15 +86,15 @@ do_install() {
     /usr/local/sbin/gwmonitor-service.php reconfigure
 
     # Записать версию
-    install -m 0644 "${PLUGIN_DIR}/usr/local/sbin/gwmonitor-version" \
-        "/usr/local/sbin/gwmonitor-version"
+    install -m 0644 "${PLUGIN_DIR}/var/db/gwmonitor-version" \
+        "/var/db/gwmonitor-version"
 
     echo "  Final configd restart..."
     service configd restart
     sleep 1
 
     echo ""
-    echo "=== Installation complete (v1.0.5) ==="
+    echo "=== Installation complete (v1.0.6) ==="
     echo ""
     echo "Refresh browser (Ctrl+F5) and go to:"
     echo "  System → Gateways → Monitoring"
@@ -112,8 +112,8 @@ do_uninstall_silent() {
     rm -f /usr/local/sbin/gwmonitor-service.php
     rm -f /usr/local/sbin/gwmonitor-list-interfaces.php
     rm -f /usr/local/sbin/gwmonitor-cleanup.php
-    rm -f /usr/local/sbin/gwmonitor-version
-    rm -f /usr/local/sbin/gwmonitor-version
+    rm -f /var/db/gwmonitor-version
+    rm -f /var/db/gwmonitor-version
     rm -rf "${OPNSENSE_MVC}/models/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/controllers/OPNsense/GwMonitor"
     rm -rf "${OPNSENSE_MVC}/views/OPNsense/GwMonitor"
