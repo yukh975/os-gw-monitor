@@ -1,9 +1,9 @@
 # os-gw-monitor v. 1.0.5
 
-![Version](https://img.shields.io/badge/release-v1.0.5-blue)
-![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)
-![FreeBSD](https://img.shields.io/badge/FreeBSD-14.3-red)
-![License](https://img.shields.io/badge/license-BSD--2--Clause-green)
+[![Version](https://img.shields.io/badge/release-v1.0.5-blue)](https://github.com/yukh975/os-gw-monitor/releases)
+[![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)](https://opnsense.org)
+[![FreeBSD](https://img.shields.io/badge/FreeBSD-14.3-red)](https://freebsd.org)
+[![License](https://img.shields.io/badge/license-BSD--2--Clause-green)](https://github.com/yukh975/os-gw-monitor/blob/main/LICENSE.md)
 
 
 **HTTP-мониторинг шлюзов для OPNsense** — плагин для отображения RTT, RTTd и Loss в `System → Gateways → Configuration` для шлюзов, которые не поддерживают ICMP-мониторинг штатным `dpinger`.
@@ -193,38 +193,16 @@ tail -f /var/log/gwmonitor_AMNEZIA_GW.log
 
 ## Лицензия
 
-This project is licensed under the **BSD 2-Clause License** — see the details below.
- 
----
- 
-```
 BSD 2-Clause License
- 
-Copyright (c) [year], [copyright holder]
-All rights reserved.
- 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
- 
-1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
- 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
- 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-POSSIBILITY OF SUCH DAMAGE.
-```
+
+Copyright (c) 2026 Merkulov Pavel Sergeevich
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 
 ---
 
