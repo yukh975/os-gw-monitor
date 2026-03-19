@@ -203,7 +203,7 @@ BSD 2-Clause
 
 ## Author
 
-Developed together with Claude (Anthropic), 2026.
+Developed by Yuriy Khachaturian, 2026.
 
 ---
 
