@@ -31,6 +31,8 @@ OPNsense dpinger_status()
 System → Gateways → Configuration (RTT / RTTd / Loss)
 ```
 
+> **GW_NAME** — the name of your gateway in OPNsense, e.g. `TUN2SOCKS_GW` or `AMNEZIA_GW`.
+
 ---
 
 ## Features
@@ -71,6 +73,38 @@ After installation completes, refresh your browser with **Ctrl+F5**.
 
 ---
 
+## Upgrade
+
+When installing a new version over an existing one, the script automatically:
+1. Detects the currently installed version
+2. Performs a silent removal while preserving settings
+3. Installs the new version
+
+```sh
+cd os-gw-monitor
+git pull
+sh install.sh
+```
+
+If the version has not changed, the installation will be skipped.
+
+---
+
+## Removal
+
+```sh
+sh install.sh uninstall
+```
+
+The script will ask what to do with your settings:
+
+- **[k] Keep** — settings are preserved in `config.xml` and will be restored on the next install
+- **[d] Delete** — settings are permanently removed
+
+In both cases: monitors are stopped, sockets are removed, standard dpinger is restored, and the menu cache is cleared.
+
+---
+
 ## Configuration
 
 ### 1. Add monitors
@@ -106,38 +140,6 @@ For each gateway you plan to monitor with this plugin, go to `System → Gateway
 | Day / Month / Week | `*` |
 | Command | `Gateway Monitor Watchdog` |
 | Parameters | *(empty)* |
-
----
-
-## Upgrade
-
-When installing a new version over an existing one, the script automatically:
-1. Detects the currently installed version
-2. Performs a silent removal while preserving settings
-3. Installs the new version
-
-```sh
-cd os-gw-monitor
-git pull
-sh install.sh
-```
-
-If the version has not changed, the installation will be skipped.
-
----
-
-## Removal
-
-```sh
-sh install.sh uninstall
-```
-
-The script will ask what to do with your settings:
-
-- **[k] Keep** — settings are preserved in `config.xml` and will be restored on the next install
-- **[d] Delete** — settings are permanently removed
-
-In both cases: monitors are stopped, sockets are removed, standard dpinger is restored, and the menu cache is cleared.
 
 ---
 
