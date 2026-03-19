@@ -9,7 +9,7 @@
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
 OPNSENSE_MVC="/usr/local/opnsense/mvc/app"
 
-PLUGIN_VERSION="1.0.6"
+PLUGIN_VERSION="1.0.7"
 VERSION_FILE="/var/db/gwmonitor-version"
 
 do_install() {
@@ -94,7 +94,7 @@ do_install() {
     sleep 1
 
     echo ""
-    echo "=== Installation complete (v1.0.6) ==="
+    echo "=== Installation complete (v1.0.7) ==="
     echo ""
     echo "Refresh browser (Ctrl+F5) and go to:"
     echo "  System → Gateways → Monitoring"
