@@ -216,9 +216,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## Автор
 
-Юрий Хачатурян, 2026.
-
-При поддержке [Claude.ai](https://claude.ai).
+Юрий Хачатурян (при поддержке [Claude.AI](https://claude.ai)), 2026.
 
 ---
 
