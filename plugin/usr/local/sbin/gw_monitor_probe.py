@@ -26,6 +26,12 @@ def _validate_args():
         sys.stderr.write('Usage: gw_monitor_probe.py sock_path gw_name host port iface count interval timeout\n')
         sys.exit(1)
 
+    sock = sys.argv[1]
+    if (not os.path.isabs(sock) or '..' in sock.split(os.sep)
+            or not re.match(r'^/var/run/dpinger_[a-zA-Z0-9_-]+\.sock$', sock)):
+        sys.stderr.write('Invalid sock_path: {}\n'.format(sock))
+        sys.exit(1)
+
     gw = sys.argv[2]
     if not re.match(r'^[a-zA-Z0-9_-]+$', gw):
         sys.stderr.write('Invalid gw_name: {}\n'.format(gw))
@@ -71,17 +77,21 @@ def _validate_args():
 
 gw_name_raw = _validate_args()
 
-# Refuse to write logs if the target path is a symlink (symlink attack protection)
+# Open log file with O_NOFOLLOW to atomically refuse symlinks (no TOCTOU gap)
 _log_path = '/var/log/gwmonitor_{}.log'.format(gw_name_raw)
-if os.path.islink(_log_path):
-    sys.stderr.write('Log file is a symlink, refusing to start: {}\n'.format(_log_path))
+try:
+    _log_fd = os.open(_log_path,
+                      os.O_WRONLY | os.O_CREAT | os.O_APPEND | os.O_NOFOLLOW,
+                      0o600)
+    _log_file = os.fdopen(_log_fd, 'a')
+except OSError as _e:
+    sys.stderr.write('Failed to open log file (possible symlink): {}\n'.format(_e))
     sys.exit(1)
 
-logging.basicConfig(
-    filename=_log_path,
-    level=logging.WARNING,
-    format='%(asctime)s %(levelname)s %(message)s'
-)
+_log_handler = logging.StreamHandler(_log_file)
+_log_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s'))
+logging.getLogger().addHandler(_log_handler)
+logging.getLogger().setLevel(logging.WARNING)
 
 def log_exception(msg):
     logging.error('{}: {}'.format(msg, traceback.format_exc()))

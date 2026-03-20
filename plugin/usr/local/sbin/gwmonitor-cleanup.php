@@ -5,8 +5,12 @@
  * Clears the status and sockets of our gateways when the plugin is removed
  */
 
-$xml = simplexml_load_file('/conf/config.xml');
+$xml = @simplexml_load_file('/conf/config.xml');
 $our_gateways = [];
+if ($xml === false) {
+    echo "WARNING: failed to parse config.xml, no monitors to clean up\n";
+    exit(0);
+}
 
 function is_valid_gw_name(string $name): bool
 {

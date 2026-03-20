@@ -33,6 +33,7 @@ if ($config) {
 foreach ($ifaces as $if) {
     if (in_array($if, $skip)) continue;
     if (empty(trim($if))) continue;
+    if (!preg_match('/^[a-zA-Z0-9_][a-zA-Z0-9_-]*$/', $if)) continue;
     $label = isset($descriptions[$if])
         ? "{$if} ({$descriptions[$if]})"
         : $if;

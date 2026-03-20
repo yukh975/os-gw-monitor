@@ -25,6 +25,10 @@
 - 🔒 Безопасность: `gw_monitor_probe.py` — IPv6-адреса без скобок автоматически оборачиваются в `[]` в URL для curl
 - 🔒 Безопасность: `gwmonitor-service.php` — lock-файл reconfigure удаляется после использования (`@unlink`)
 - 🔒 Безопасность: `gwmonitor-service.php` — добавлена проверка `is_link()` перед `fopen()` lock-файла reconfigure
+- 🔒 Безопасность: `gw_monitor_probe.py` — `sock_path` (argv[1]) валидируется по шаблону `/var/run/dpinger_<name>.sock`
+- 🔒 Безопасность: `gw_monitor_probe.py` — лог-файл открывается с `O_NOFOLLOW` атомарно, исключая TOCTOU-гонку с симлинком
+- 🔒 Безопасность: `gwmonitor-list-interfaces.php` — имена интерфейсов из `ifconfig` валидируются по `[a-zA-Z0-9_-]+`
+- 🔒 Безопасность: `gwmonitor-cleanup.php` — проверка возврата `simplexml_load_file()`; корректный выход при ошибке парсинга
 - 🔒 Безопасность: `install.sh` — grep в `_kill_monitors()` уточнён до `python3.*gw_monitor_probe\.py`
 - 🔒 Безопасность: `gw_monitor.inc` — null-результат `shell_exec()` теперь обнаруживается и выводится как ошибка
 - 🔧 Код: `gwmonitor-cleanup.php` — `goto` заменён структурным блоком `if/else`
