@@ -1,7 +1,7 @@
 #!/usr/local/bin/php
 <?php
 /**
- * Возвращает список физических интерфейсов в формате JsonKeyValueStoreField:
+ * Returns a list of physical interfaces in JsonKeyValueStoreField format:
  * {"if1": "if1 (description)", ...}
  */
 
@@ -12,12 +12,12 @@ if ($rc !== 0 || empty($lines)) {
     exit(0);
 }
 
-// Пропускаем служебные интерфейсы
+// Skip system interfaces
 $skip = ['lo0', 'enc0', 'pflog0', 'pfsync0'];
 
 $ifaces = explode(' ', trim($lines[0]));
 
-// Попробуем получить описания из config.xml
+// Try to get descriptions from config.xml
 $descriptions = [];
 $config = simplexml_load_file('/conf/config.xml');
 if ($config) {

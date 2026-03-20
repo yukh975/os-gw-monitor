@@ -2,7 +2,7 @@
 <?php
 /**
  * gwmonitor-cleanup.php
- * Очищает статус и сокеты наших шлюзов при удалении плагина
+ * Clears the status and sockets of our gateways when the plugin is removed
  */
 
 $xml = simplexml_load_file('/conf/config.xml');
@@ -27,7 +27,7 @@ if (empty($our_gateways)) {
     exit(0);
 }
 
-// Очистить gateways.status
+// Clear gateways.status
 $status_file = '/tmp/gateways.status';
 if (file_exists($status_file)) {
     $fp = fopen($status_file, 'r+');
@@ -48,7 +48,7 @@ if (file_exists($status_file)) {
     }
 }
 
-// Удалить сокеты и pid файлы (проверяем что это не symlink)
+// Remove sockets and pid files (verify they are not symlinks)
 foreach ($our_gateways as $gw) {
     $sock_path = "/var/run/dpinger_{$gw}.sock";
     $pid_path  = "/var/run/dpinger_{$gw}.pid";
@@ -57,7 +57,7 @@ foreach ($our_gateways as $gw) {
     echo "Removed socket/pid for {$gw}\n";
 }
 
-// Удалить из config.xml если передан аргумент --purge
+// Remove from config.xml if the --purge argument is passed
 if (in_array('--purge', $argv ?? [])) {
     unset($xml->OPNsense->GwMonitor);
     $dom = dom_import_simplexml($xml)->ownerDocument;

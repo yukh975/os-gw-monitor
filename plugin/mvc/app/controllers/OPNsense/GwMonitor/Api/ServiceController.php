@@ -9,7 +9,7 @@ class ServiceController extends ApiControllerBase
 {
     /**
      * POST /api/gwmonitor/service/reconfigure
-     * Генерирует скрипты из config.xml и перезапускает все мониторы
+     * Generates scripts from config.xml and restarts all monitors
      */
     public function reconfigureAction()
     {
@@ -35,7 +35,7 @@ class ServiceController extends ApiControllerBase
 
     /**
      * GET /api/gwmonitor/service/status
-     * Возвращает статус всех инстансов + текущие RTT/Loss
+     * Returns the status of all instances + current RTT/Loss
      */
     public function statusAction()
     {
@@ -56,7 +56,7 @@ class ServiceController extends ApiControllerBase
 
     /**
      * POST /api/gwmonitor/service/startMonitor
-     * Запускает конкретный инстанс по uuid
+     * Starts a specific instance by uuid
      */
     public function startMonitorAction()
     {
@@ -84,7 +84,7 @@ class ServiceController extends ApiControllerBase
 
     /**
      * POST /api/gwmonitor/service/stopMonitor
-     * Останавливает конкретный инстанс по uuid
+     * Stops a specific instance by uuid
      */
     public function stopMonitorAction()
     {

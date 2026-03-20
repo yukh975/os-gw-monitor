@@ -1,8 +1,8 @@
 #!/usr/local/bin/php
 <?php
 /**
- * gwmonitor-service.php — управление инстансами мониторинга шлюзов
- * Вызывается через configd:
+ * gwmonitor-service.php — manages gateway monitoring instances
+ * Invoked via configd:
  *   gwmonitor reconfigure
  *   gwmonitor status
  *   gwmonitor start <uuid>
@@ -76,7 +76,7 @@ function is_valid_probe_host(string $host): bool
 }
 
 /**
- * Читает все инстансы из config.xml
+ * Reads all instances from config.xml
  */
 function get_monitors(): array
 {
@@ -85,7 +85,7 @@ function get_monitors(): array
     if (!$raw) return [];
 
     $monitors = [];
-    // Каждый <monitors uuid="..."> — отдельный инстанс
+    // Each <monitors uuid="..."> is a separate instance
     $nodes = $raw->xpath('//OPNsense/GwMonitor/monitors');
     if (!$nodes) return [];
 
@@ -127,7 +127,7 @@ function get_monitors(): array
 }
 
 /**
- * Проверяет жив ли инстанс
+ * Checks whether an instance is alive
  */
 function is_running(string $gw_name): bool
 {
@@ -140,7 +140,7 @@ function is_running(string $gw_name): bool
 }
 
 /**
- * Запускает инстанс
+ * Starts an instance
  */
 function start_instance(array $m): void
 {
@@ -150,7 +150,7 @@ function start_instance(array $m): void
     $sock = "{$RUN_DIR}/dpinger_{$m['gw_name']}.sock";
     $pid  = "{$RUN_DIR}/dpinger_{$m['gw_name']}.pid";
 
-    // Убиваем старый процесс если есть
+    // Kill old process if exists
     stop_instance($m['gw_name']);
 
     $cmd = sprintf(
@@ -170,18 +170,18 @@ function start_instance(array $m): void
 
     exec($cmd, $out, $rc);
 
-    // Ждём появления сокета (до 10 секунд)
-    // Используем lstat() для атомарной проверки без следования symlink
+    // Wait for the socket to appear (up to 10 seconds)
+    // Using lstat() for atomic check without following symlinks
     for ($i = 0; $i < 20; $i++) {
         usleep(500000);
         $stat = @lstat($sock);
         if ($stat !== false && ($stat['mode'] & 0170000) === 0140000) break; // S_IFSOCK
     }
 
-    // Ищем PID python-процесса по точному совпадению пути к сокету
+    // Find the PID of the python process by exact match of the socket path
     $escaped_sock = preg_quote($sock, '/');
     exec("pgrep -f " . escapeshellarg("gw_monitor_probe\\.py " . $sock), $pids);
-    // Фильтруем по точному совпадению — исключаем процессы с похожими именами
+    // Filter by exact match — exclude processes with similar names
     $matched_pid = null;
     foreach ($pids as $candidate) {
         $candidate = (int)trim($candidate);
@@ -200,7 +200,7 @@ function start_instance(array $m): void
 }
 
 /**
- * Останавливает инстанс
+ * Stops an instance
  */
 function stop_instance(string $gw_name): void
 {
@@ -213,7 +213,7 @@ function stop_instance(string $gw_name): void
         if ($pid > 0) {
             exec("kill " . (int)$pid);
             usleep(500000);
-            // Принудительное завершение по точному PID — не по паттерну строки
+            // Force kill by exact PID — not by string pattern
             if (posix_kill($pid, 0)) exec("kill -9 " . (int)$pid);
         }
     }
@@ -223,14 +223,14 @@ function stop_instance(string $gw_name): void
 }
 
 /**
- * Читает текущие данные из dpinger-сокета
+ * Reads current data from the dpinger socket
  */
 function read_socket(string $gw_name): ?array
 {
     global $RUN_DIR;
     $sockfile = "{$RUN_DIR}/dpinger_{$gw_name}.sock";
 
-    // Атомарная проверка через lstat (не следует symlink)
+    // Atomic check via lstat (does not follow symlinks)
     $stat = @lstat($sockfile);
     if ($stat === false || ($stat['mode'] & 0170000) !== 0140000) return null;
     if (is_link($sockfile)) return null;
@@ -256,7 +256,7 @@ function read_socket(string $gw_name): ?array
     ];
 }
 
-// ── Обработчики команд ────────────────────────────────────────────────
+// ── Command handlers ──────────────────────────────────────────────────
 
 switch ($action) {
 
@@ -268,14 +268,14 @@ switch ($action) {
             exit(1);
         }
         $monitors = get_monitors();
-        // Останавливаем только наши инстансы (python3 gw_monitor_probe.py)
-        // НЕ трогаем штатные dpinger процессы
+        // Stop only our instances (python3 gw_monitor_probe.py)
+        // Do NOT touch standard dpinger processes
         foreach ($monitors as $m) {
             if (!empty($m['gw_name'])) {
                 stop_instance($m['gw_name']);
             }
         }
-        // Запускаем только включённые
+        // Start only enabled instances
         $started = 0;
         foreach ($monitors as $m) {
             if ($m['enabled'] && !empty($m['gw_name']) && !empty($m['probe_if'])) {

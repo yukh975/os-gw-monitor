@@ -1,7 +1,7 @@
 <?php
 /**
  * os-gw-monitor plugin hook
- * Регистрирует сервисы и перехватывает перезапуск dpinger
+ * Registers services and intercepts dpinger restarts
  */
 
 function gw_monitor_services()
@@ -20,10 +20,10 @@ function gw_monitor_services()
 }
 
 /**
- * Хук monitor — вызывается после dpinger_configure_do()
- * когда OPNsense перезапускает мониторинг шлюзов.
- * Восстанавливает наши HTTP-мониторы после того как dpinger
- * убил все /var/run/dpinger_*.pid
+ * Monitor hook — called after dpinger_configure_do()
+ * when OPNsense restarts gateway monitoring.
+ * Restores our HTTP monitors after dpinger
+ * has killed all /var/run/dpinger_*.pid files
  */
 function gw_monitor_configure()
 {
@@ -34,10 +34,10 @@ function gw_monitor_configure()
 
 function gw_monitor_configure_do($verbose = false, $gwname_map = null)
 {
-    // Небольшая пауза чтобы dpinger успел запустить свои процессы
+    // Short pause to allow dpinger to start its processes
     sleep(1);
 
-    // Перезапускаем только наши HTTP-мониторы
+    // Restart only our HTTP monitors
     $output = shell_exec('/usr/local/sbin/gwmonitor-service.php reconfigure');
 
     if ($verbose) {
