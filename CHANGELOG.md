@@ -4,6 +4,9 @@
 
 # Changelog
 
+## [1.1.0] — 2026-03-20
+- 🚀 Development version on main branch
+
 ## [1.0.12] — 2026-03-20
 - 🔒 Security: TOCTOU fix in `read_socket()` — replaced `file_exists()` with atomic `lstat()` + `is_link()` check
 - 🔒 Security: `read_socket()` — added read limit (10 lines / 256 bytes each) to prevent DoS via oversized socket response
