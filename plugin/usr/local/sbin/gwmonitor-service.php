@@ -250,7 +250,11 @@ switch ($action) {
 
     case 'reconfigure':
         $lock_file = '/var/run/gwmonitor-reconfigure.lock';
-        $lock_fp   = fopen($lock_file, 'c');
+        if (is_link($lock_file)) {
+            echo "ERROR: lock file is a symlink\n";
+            exit(1);
+        }
+        $lock_fp = fopen($lock_file, 'c');
         if (!$lock_fp || !flock($lock_fp, LOCK_EX | LOCK_NB)) {
             echo "ERROR: reconfigure already running\n";
             exit(1);
@@ -273,6 +277,7 @@ switch ($action) {
         }
         flock($lock_fp, LOCK_UN);
         fclose($lock_fp);
+        @unlink($lock_file);
         echo "OK: reconfigured, {$started} monitor(s) started\n";
         break;
 

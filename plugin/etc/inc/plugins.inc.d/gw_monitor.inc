@@ -41,6 +41,6 @@ function gw_monitor_configure_do($verbose = false, $gwname_map = null)
     $output = shell_exec('/usr/local/sbin/gwmonitor-service.php reconfigure');
 
     if ($verbose) {
-        echo "gw_monitor: " . trim($output) . "\n";
+        echo "gw_monitor: " . ($output !== null ? trim($output) : 'ERROR: reconfigure script unavailable') . "\n";
     }
 }

@@ -21,6 +21,16 @@
 - 🔒 Безопасность: `gwmonitor-service.php` — добавлен `stream_set_timeout(1)` на чтение из сокета для исключения бесконечной блокировки в `read_socket()`
 - 🔒 Безопасность: `gwmonitor-service.php` — добавлена проверка `is_numeric()` на данные из сокета перед приведением к int
 - 🔒 Безопасность: `install.sh` — `pkill -f` заменён на `_kill_monitors()` с убийством по PID-файлам во избежание случайного завершения чужих процессов
+- 🔒 Безопасность: `install.sh` — `_kill_monitors()` теперь проверяет через `ps`, что PID принадлежит `gw_monitor_probe`, перед отправкой сигнала (защита от переиспользованных PID)
+- 🔒 Безопасность: `gw_monitor_probe.py` — IPv6-адреса без скобок автоматически оборачиваются в `[]` в URL для curl
+- 🔒 Безопасность: `gwmonitor-service.php` — lock-файл reconfigure удаляется после использования (`@unlink`)
+- 🔒 Безопасность: `gwmonitor-service.php` — добавлена проверка `is_link()` перед `fopen()` lock-файла reconfigure
+- 🔒 Безопасность: `gw_monitor_probe.py` — `sock_path` (argv[1]) валидируется по шаблону `/var/run/dpinger_<name>.sock`
+- 🔒 Безопасность: `gw_monitor_probe.py` — лог-файл открывается с `O_NOFOLLOW` атомарно, исключая TOCTOU-гонку с симлинком
+- 🔒 Безопасность: `gwmonitor-list-interfaces.php` — имена интерфейсов из `ifconfig` валидируются по `[a-zA-Z0-9_-]+`
+- 🔒 Безопасность: `gwmonitor-cleanup.php` — проверка возврата `simplexml_load_file()`; корректный выход при ошибке парсинга
+- 🔒 Безопасность: `install.sh` — grep в `_kill_monitors()` уточнён до `python3.*gw_monitor_probe\.py`
+- 🔒 Безопасность: `gw_monitor.inc` — null-результат `shell_exec()` теперь обнаруживается и выводится как ошибка
 - 🔧 Код: `gwmonitor-cleanup.php` — `goto` заменён структурным блоком `if/else`
 
 ## [1.0.12] — 2026-03-20
