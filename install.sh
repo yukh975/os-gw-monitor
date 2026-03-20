@@ -3,6 +3,7 @@
 # os-gw-monitor install.sh
 # Usage:
 #   sh install.sh           — install
+#   sh install.sh reinstall — reinstall (preserve settings)
 #   sh install.sh uninstall — uninstall
 # =============================================================
 
@@ -118,6 +119,12 @@ _kill_monitors() {
     sleep 1
 }
 
+do_reinstall() {
+    echo "=== Reinstalling os-gw-monitor v${PLUGIN_VERSION} ==="
+    do_uninstall_silent
+    do_install
+}
+
 do_uninstall_silent() {
     # Silent removal during upgrade — always preserves settings
     _kill_monitors
@@ -196,6 +203,7 @@ do_uninstall() {
 }
 
 case "$1" in
-    uninstall) do_uninstall ;;
-    *)         do_install   ;;
+    uninstall) do_uninstall  ;;
+    reinstall) do_reinstall  ;;
+    *)         do_install    ;;
 esac
