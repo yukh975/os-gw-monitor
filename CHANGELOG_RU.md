@@ -4,6 +4,11 @@
 
 # История изменений
 
+## [1.0.12] — 2026-03-20
+- 🔒 Безопасность: SSRF — Python-зонд теперь блокирует `is_reserved`, `is_multicast` и IPv4-mapped IPv6 адреса (`::ffff:127.x.x.x`)
+- 🔒 Безопасность: SSRF — PHP `is_valid_probe_host()` полностью переписан с бинарными проверками IPv6: блокированы multicast (`ff00::/8`), link-local (`fe80::/10`), site-local (`fec0::/10`), unique-local (`fc00::/7`), IPv4-mapped loopback/link-local, broadcast, reserved
+- 🔒 Безопасность: права Unix-сокета ужесточены с `0o660` до `0o600` (только владелец)
+
 ## [1.0.11] — 2026-03-20
 - 🔒 Безопасность: защита от symlink attack — `unlink()` теперь проверяет `is_link()` перед удалением socket/pid файлов
 - 🔒 Безопасность: устранён TOCTOU — проверка существования сокета заменена атомарным `lstat()` + битовая маска типа файла (без следования symlink)

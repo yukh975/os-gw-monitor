@@ -4,6 +4,11 @@
 
 # Changelog
 
+## [1.0.12] — 2026-03-20
+- 🔒 Security: SSRF — Python probe now also blocks `is_reserved`, `is_multicast` and IPv4-mapped IPv6 addresses (`::ffff:127.x.x.x`)
+- 🔒 Security: SSRF — PHP `is_valid_probe_host()` fully rewritten with binary IPv6 checks: blocks multicast (`ff00::/8`), link-local (`fe80::/10`), site-local (`fec0::/10`), unique-local (`fc00::/7`), IPv4-mapped loopback/link-local, broadcast, reserved
+- 🔒 Security: Unix socket permissions tightened from `0o660` to `0o600` (owner only)
+
 ## [1.0.11] — 2026-03-20
 - 🔒 Security: Symlink attack protection — `unlink()` now checks `is_link()` before removing socket/pid files
 - 🔒 Security: TOCTOU fix — socket existence check replaced with atomic `lstat()` + mode bitmask (no symlink follow)

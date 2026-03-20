@@ -39,16 +39,39 @@ function is_valid_probe_host(string $host): bool
     if (in_array(strtolower($host), $blocked_names, true)) return false;
 
     $ip_str = trim($host, '[]');
+
     if (filter_var($ip_str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
         $addr = ip2long($ip_str);
-        if (($addr & 0xFF000000) === 0x7F000000) return false; // 127.0.0.0/8 loopback
+        if ($addr === false) return false;
+        if (($addr & 0xFF000000) === 0x7F000000) return false; // 127.0.0.0/8  loopback
         if (($addr & 0xFFFF0000) === 0xA9FE0000) return false; // 169.254.0.0/16 link-local
-        if ($addr === 0) return false;                          // 0.0.0.0
-    } elseif (filter_var($ip_str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-        if ($ip_str === '::1') return false;                    // IPv6 loopback
-        if (stripos($ip_str, 'fe80:') === 0) return false;     // IPv6 link-local
+        if (($addr & 0xF0000000) === 0xE0000000) return false; // 224.0.0.0/4  multicast
+        if (($addr & 0xF0000000) === 0xF0000000) return false; // 240.0.0.0/4  reserved
+        if ($addr === 0x00000000) return false;                 // 0.0.0.0      unspecified
+        if ($addr === (int)0xFFFFFFFF) return false;            // 255.255.255.255 broadcast
+        return true;
     }
 
+    if (filter_var($ip_str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        $bin = inet_pton($ip_str);
+        if ($bin === false) return false;
+        $b0 = ord($bin[0]);
+        $b1 = ord($bin[1]);
+
+        if ($ip_str === '::' || $ip_str === '::1') return false;      // unspecified / loopback
+        if ($b0 === 0xFF) return false;                                // ff00::/8  multicast
+        if ($b0 === 0xFE && ($b1 & 0xC0) === 0x80) return false;      // fe80::/10 link-local
+        if ($b0 === 0xFE && ($b1 & 0xC0) === 0xC0) return false;      // fec0::/10 site-local
+        if (($b0 & 0xFE) === 0xFC) return false;                      // fc00::/7  unique local
+        if (substr($bin, 0, 12) === "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff") {
+            // IPv4-mapped ::ffff:x.x.x.x — check the embedded IPv4 part
+            $ipv4 = long2ip(unpack('N', substr($bin, 12, 4))[1]);
+            return is_valid_probe_host($ipv4);
+        }
+        return true;
+    }
+
+    // Hostname — allow (DNS resolution happens at curl time)
     return true;
 }
 

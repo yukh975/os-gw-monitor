@@ -8,8 +8,15 @@ def _is_safe_host(host):
         return False
     try:
         addr = ipaddress.ip_address(host.strip('[]'))
-        if addr.is_loopback or addr.is_link_local or addr.is_unspecified:
+        if (addr.is_loopback or addr.is_link_local or addr.is_unspecified or
+                addr.is_reserved or addr.is_multicast):
             return False
+        # Block IPv4-mapped addresses (e.g. ::ffff:127.0.0.1)
+        if isinstance(addr, ipaddress.IPv6Address) and addr.ipv4_mapped is not None:
+            mapped = addr.ipv4_mapped
+            if (mapped.is_loopback or mapped.is_link_local or
+                    mapped.is_unspecified or mapped.is_reserved or mapped.is_multicast):
+                return False
     except ValueError:
         pass  # hostname — allow
     return True
@@ -131,7 +138,7 @@ try:
 
     srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     srv.bind(sock_path)
-    os.chmod(sock_path, 0o660)
+    os.chmod(sock_path, 0o600)
     srv.listen(5)
 
     while True:
