@@ -36,7 +36,11 @@ def _validate_args():
         sys.stderr.write('Invalid or blocked probe_host: {}\n'.format(host))
         sys.exit(1)
 
-    port = int(sys.argv[4])
+    try:
+        port = int(sys.argv[4])
+    except ValueError:
+        sys.stderr.write('Invalid probe_port: {}\n'.format(sys.argv[4]))
+        sys.exit(1)
     if not (1 <= port <= 65535):
         sys.stderr.write('Invalid probe_port: {}\n'.format(port))
         sys.exit(1)
@@ -44,6 +48,23 @@ def _validate_args():
     iface = sys.argv[5]
     if not re.match(r'^[a-zA-Z0-9_]+$', iface):
         sys.stderr.write('Invalid probe_if: {}\n'.format(iface))
+        sys.exit(1)
+
+    try:
+        count    = int(sys.argv[6])
+        interval = int(sys.argv[7])
+        timeout  = int(sys.argv[8])
+    except ValueError as e:
+        sys.stderr.write('Invalid probe parameter: {}\n'.format(e))
+        sys.exit(1)
+    if not (1 <= count <= 20):
+        sys.stderr.write('Invalid probe_count: {}\n'.format(count))
+        sys.exit(1)
+    if not (5 <= interval <= 300):
+        sys.stderr.write('Invalid probe_interval: {}\n'.format(interval))
+        sys.exit(1)
+    if not (1 <= timeout <= 30):
+        sys.stderr.write('Invalid probe_timeout: {}\n'.format(timeout))
         sys.exit(1)
 
     return gw
@@ -79,6 +100,7 @@ _pid_path = '/var/run/dpinger_{}.pid'.format(gw_name)
 try:
     with open(_pid_path, 'w') as _f:
         _f.write(str(os.getpid()))
+    os.chmod(_pid_path, 0o600)
 except Exception as _e:
     sys.stderr.write('Failed to write PID file: {}\n'.format(_e))
     sys.exit(1)

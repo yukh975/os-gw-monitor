@@ -220,6 +220,7 @@ function read_socket(string $gw_name): ?array
 
     $fp = @stream_socket_client("unix://{$sockfile}", $errno, $errstr, 1);
     if (!$fp) return null;
+    stream_set_timeout($fp, 1); // 1-second read timeout
 
     $data  = '';
     $lines = 0;
@@ -231,6 +232,7 @@ function read_socket(string $gw_name): ?array
 
     $parts = explode(' ', trim($data));
     if (count($parts) < 4) return null;
+    if (!is_numeric($parts[1]) || !is_numeric($parts[2]) || !is_numeric($parts[3])) return null;
 
     return [
         'rtt'  => round((int)$parts[1] / 1000, 1),

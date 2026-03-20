@@ -16,6 +16,12 @@
 - 🔒 Безопасность: `gw_monitor_probe.py` — Python-процесс записывает свой PID атомарно при старте; исключает ненадёжный поиск через `pgrep`/`ps` в PHP
 - 🔒 Безопасность: `gwmonitor-service.php` — `exec("kill")` заменён на `posix_kill(SIGTERM/SIGKILL)` — безопасное завершение без fork/shell
 - 🔒 Безопасность: `gwmonitor-service.php` — защита от DNS rebinding: хостнейм резолвится один раз в момент валидации; полученный IP проверяется против запрещённых диапазонов
+- 🔒 Безопасность: `gw_monitor_probe.py` — добавлена валидация диапазонов `count` (1–20), `interval` (5–300), `timeout` (1–30) с try/except на `int()`
+- 🔒 Безопасность: `gw_monitor_probe.py` — PID-файл создаётся с правами `0o600` (только владелец)
+- 🔒 Безопасность: `gwmonitor-service.php` — добавлен `stream_set_timeout(1)` на чтение из сокета для исключения бесконечной блокировки в `read_socket()`
+- 🔒 Безопасность: `gwmonitor-service.php` — добавлена проверка `is_numeric()` на данные из сокета перед приведением к int
+- 🔒 Безопасность: `install.sh` — `pkill -f` заменён на `_kill_monitors()` с убийством по PID-файлам во избежание случайного завершения чужих процессов
+- 🔧 Код: `gwmonitor-cleanup.php` — `goto` заменён структурным блоком `if/else`
 
 ## [1.0.12] — 2026-03-20
 - 🔒 Безопасность: устранён TOCTOU в `read_socket()` — `file_exists()` заменён атомарным `lstat()` + проверкой `is_link()`
