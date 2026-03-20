@@ -9,7 +9,7 @@
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
 OPNSENSE_MVC="/usr/local/opnsense/mvc/app"
 
-PLUGIN_VERSION="1.0.7"
+PLUGIN_VERSION="1.0.8"
 VERSION_FILE="/var/db/gwmonitor-version"
 
 do_install() {

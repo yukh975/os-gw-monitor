@@ -4,6 +4,15 @@
 
 # Changelog
 
+## [1.0.8] — 2026-03-20
+- 🔒 Security: Unix socket permissions changed from `0o666` to `0o660`
+- 🔒 Security: Fixed TOCTOU race condition on socket creation
+- 🔒 Security: Added `gw_name` validation against path traversal (`[a-zA-Z0-9_-]` only)
+- 🔒 Security: Added UUID format validation before passing to shell commands
+- 🔒 Security: Replaced `shell_exec("kill -0 ...")` with `posix_kill()`
+- 🔒 Security: Added file locking for `/tmp/gateways.status` operations
+- 🔒 Security: Added `htmlspecialchars()` on interface descriptions in API output
+
 ## [1.0.7] — 2026-03-19
 - 🐛 Version file not deleted on uninstall
 
