@@ -5,7 +5,7 @@
 # Changelog
 
 ## [1.1.0] — 2026-03-20
-- 🚀 Development version on main branch
+- 🚀 Development version on devel branch
 - 🔒 Security: `gw_monitor_probe.py` — added connection semaphore (`_MAX_CONN = 10`) to prevent DoS via unlimited thread spawning on socket accept
 - 🔒 Security: `gwmonitor-cleanup.php` — added 1 MB size cap before `unserialize()` to prevent memory exhaustion from crafted `gateways.status`
 - 🔒 Security: `MonitorController.php` — empty `gw_name` now returns a validation error in both `addMonitor` and `setMonitor` (previously bypassed duplicate check and fell through to model save)
