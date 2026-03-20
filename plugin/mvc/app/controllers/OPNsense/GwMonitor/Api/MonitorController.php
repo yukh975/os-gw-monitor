@@ -28,17 +28,24 @@ class MonitorController extends ApiMutableModelControllerBase
             $data = $this->request->getPost('monitor');
             $gw_name = !empty($data['gw_name']) ? trim($data['gw_name']) : '';
 
-            if (!empty($gw_name)) {
-                $mdl = $this->getModel();
-                foreach ($mdl->monitors->iterateItems() as $uuid => $item) {
-                    if ((string)$item->gw_name === $gw_name) {
-                        return [
-                            'result'  => 'failed',
-                            'validations' => [
-                                'monitor.gw_name' => 'This gateway is already being monitored.'
-                            ]
-                        ];
-                    }
+            if (empty($gw_name)) {
+                return [
+                    'result' => 'failed',
+                    'validations' => [
+                        'monitor.gw_name' => 'Gateway name is required.'
+                    ]
+                ];
+            }
+
+            $mdl = $this->getModel();
+            foreach ($mdl->monitors->iterateItems() as $uuid => $item) {
+                if ((string)$item->gw_name === $gw_name) {
+                    return [
+                        'result'  => 'failed',
+                        'validations' => [
+                            'monitor.gw_name' => 'This gateway is already being monitored.'
+                        ]
+                    ];
                 }
             }
         }
@@ -51,18 +58,25 @@ class MonitorController extends ApiMutableModelControllerBase
             $data = $this->request->getPost('monitor');
             $gw_name = !empty($data['gw_name']) ? trim($data['gw_name']) : '';
 
-            if (!empty($gw_name)) {
-                $mdl = $this->getModel();
-                foreach ($mdl->monitors->iterateItems() as $item_uuid => $item) {
-                    if ($item_uuid === $uuid) continue;
-                    if ((string)$item->gw_name === $gw_name) {
-                        return [
-                            'result'  => 'failed',
-                            'validations' => [
-                                'monitor.gw_name' => 'This gateway is already being monitored.'
-                            ]
-                        ];
-                    }
+            if (empty($gw_name)) {
+                return [
+                    'result' => 'failed',
+                    'validations' => [
+                        'monitor.gw_name' => 'Gateway name is required.'
+                    ]
+                ];
+            }
+
+            $mdl = $this->getModel();
+            foreach ($mdl->monitors->iterateItems() as $item_uuid => $item) {
+                if ($item_uuid === $uuid) continue;
+                if ((string)$item->gw_name === $gw_name) {
+                    return [
+                        'result'  => 'failed',
+                        'validations' => [
+                            'monitor.gw_name' => 'This gateway is already being monitored.'
+                        ]
+                    ];
                 }
             }
         }
