@@ -5,6 +5,11 @@
 # Changelog
 
 ## [1.0.12] — 2026-03-20
+- 🔒 Security: TOCTOU fix in `read_socket()` — replaced `file_exists()` with atomic `lstat()` + `is_link()` check
+- 🔒 Security: `read_socket()` — added read limit (10 lines / 256 bytes each) to prevent DoS via oversized socket response
+- 🔒 Security: `stop_instance()` — `unlink()` now checks `is_link()` before removing pid/sock files
+- 🔒 Security: `stop_instance()` — replaced `pkill -f` pattern match with exact PID-based termination to prevent killing wrong process
+- 🔒 Security: `start_instance()` — `pgrep` result verified via `ps` exact path match to prevent process confusion
 - 🔒 Security: Unix socket permissions tightened to `0o600` (owner only)
 - 🔒 Security: SSRF — full IPv6 protection: blocked multicast (`ff00::/8`), link-local (`fe80::/10`), site-local (`fec0::/10`), unique-local (`fc00::/7`), IPv4-mapped addresses (`::ffff:127.x.x.x`), broadcast, reserved ranges
 - 🔒 Security: SSRF — Python probe blocks `is_reserved` and `is_multicast` via `ipaddress` module

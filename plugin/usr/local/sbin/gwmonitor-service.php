@@ -178,10 +178,24 @@ function start_instance(array $m): void
         if ($stat !== false && ($stat['mode'] & 0170000) === 0140000) break; // S_IFSOCK
     }
 
-    // Ищем PID python-процесса
-    exec("pgrep -f " . escapeshellarg("gw_monitor_probe.py {$sock}"), $pids);
-    if (!empty($pids)) {
-        file_put_contents($pid, trim($pids[0]));
+    // Ищем PID python-процесса по точному совпадению пути к сокету
+    $escaped_sock = preg_quote($sock, '/');
+    exec("pgrep -f " . escapeshellarg("gw_monitor_probe\\.py " . $sock), $pids);
+    // Фильтруем по точному совпадению — исключаем процессы с похожими именами
+    $matched_pid = null;
+    foreach ($pids as $candidate) {
+        $candidate = (int)trim($candidate);
+        if ($candidate <= 0) continue;
+        exec("ps -p " . $candidate . " -o args=", $args);
+        if (!empty($args) && strpos(trim($args[0]), $sock) !== false
+            && strpos(trim($args[0]), 'gw_monitor_probe.py') !== false
+            && substr_count(trim($args[0]), $sock) === 1) {
+            $matched_pid = $candidate;
+            break;
+        }
+    }
+    if ($matched_pid !== null) {
+        file_put_contents($pid, $matched_pid);
     }
 }
 
@@ -194,17 +208,18 @@ function stop_instance(string $gw_name): void
     $pidfile  = "{$RUN_DIR}/dpinger_{$gw_name}.pid";
     $sockfile = "{$RUN_DIR}/dpinger_{$gw_name}.sock";
 
-    if (file_exists($pidfile)) {
+    if (file_exists($pidfile) && !is_link($pidfile)) {
         $pid = (int)trim(file_get_contents($pidfile));
-        if ($pid > 0) exec("kill " . (int)$pid . "");
+        if ($pid > 0) {
+            exec("kill " . (int)$pid);
+            usleep(500000);
+            // Принудительное завершение по точному PID — не по паттерну строки
+            if (posix_kill($pid, 0)) exec("kill -9 " . (int)$pid);
+        }
     }
 
-    // Небольшая пауза и принудительное завершение
-    usleep(500000);
-    exec("pkill -f " . escapeshellarg("gw_monitor_probe.py {$sockfile}") . "");
-
-    @unlink($pidfile);
-    @unlink($sockfile);
+    if (!is_link($pidfile))  @unlink($pidfile);
+    if (!is_link($sockfile)) @unlink($sockfile);
 }
 
 /**
@@ -214,13 +229,21 @@ function read_socket(string $gw_name): ?array
 {
     global $RUN_DIR;
     $sockfile = "{$RUN_DIR}/dpinger_{$gw_name}.sock";
-    if (!file_exists($sockfile)) return null;
+
+    // Атомарная проверка через lstat (не следует symlink)
+    $stat = @lstat($sockfile);
+    if ($stat === false || ($stat['mode'] & 0170000) !== 0140000) return null;
+    if (is_link($sockfile)) return null;
 
     $fp = @stream_socket_client("unix://{$sockfile}", $errno, $errstr, 1);
     if (!$fp) return null;
 
-    $data = '';
-    while (!feof($fp)) $data .= fgets($fp, 1024);
+    $data  = '';
+    $lines = 0;
+    while (!feof($fp) && $lines < 10) {
+        $data .= fgets($fp, 256);
+        $lines++;
+    }
     fclose($fp);
 
     $parts = explode(' ', trim($data));
