@@ -138,7 +138,9 @@ function is_running(string $gw_name): bool
     $sockfile = "{$RUN_DIR}/dpinger_{$gw_name}.sock";
     if (!file_exists($pidfile) || !file_exists($sockfile)) return false;
     $pid = (int)trim(file_get_contents($pidfile));
-    return $pid > 0 && posix_kill($pid, 0);
+    if ($pid <= 0) return false;
+    exec('kill -0 ' . $pid . ' 2>/dev/null', $unused, $rc);
+    return $rc === 0;
 }
 
 /**
@@ -194,10 +196,11 @@ function stop_instance(string $gw_name): void
     if (file_exists($pidfile) && !is_link($pidfile)) {
         $pid = (int)trim(file_get_contents($pidfile));
         if ($pid > 0) {
-            posix_kill($pid, SIGTERM);
+            exec('kill -15 ' . $pid . ' 2>/dev/null'); // SIGTERM
             usleep(500000);
             // Force kill by exact PID if still alive
-            if (posix_kill($pid, 0)) posix_kill($pid, SIGKILL);
+            exec('kill -0 ' . $pid . ' 2>/dev/null', $unused, $rc);
+            if ($rc === 0) exec('kill -9 ' . $pid . ' 2>/dev/null'); // SIGKILL
         }
     }
 
