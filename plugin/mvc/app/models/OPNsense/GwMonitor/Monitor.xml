@@ -2,7 +2,7 @@
 <model>
     <mount>//OPNsense/GwMonitor</mount>
     <description>Gateway HTTP Monitor</description>
-    <version>1.0.12</version>
+    <version>1.1.0</version>
     <items>
         <monitors type="ArrayField">
             <enabled type="BooleanField">
@@ -22,8 +22,8 @@
             <probe_host type="TextField">
                 <Required>Y</Required>
                 <Default>1.1.1.1</Default>
-                <Mask>/^[a-zA-Z0-9]([a-zA-Z0-9\-\.]{0,251}[a-zA-Z0-9])?$|^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/</Mask>
-                <ValidationMessage>Must be a valid hostname or IPv4 address</ValidationMessage>
+                <Mask>/^[a-zA-Z0-9]([a-zA-Z0-9\-\.]{0,251}[a-zA-Z0-9])?$|^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$|^\[([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}\]$/</Mask>
+                <ValidationMessage>Must be a valid hostname, IPv4 address, or bracketed IPv6 address (e.g. [2001:db8::1])</ValidationMessage>
             </probe_host>
             <probe_port type="PortField">
                 <Required>Y</Required>

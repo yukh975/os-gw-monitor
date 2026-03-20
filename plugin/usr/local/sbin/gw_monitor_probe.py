@@ -71,6 +71,9 @@ timeout    = int(sys.argv[8])
 state = {'lat': 0, 'std': 0, 'loss': 100}
 state_lock = threading.Lock()
 
+_MAX_CONN = 10
+_conn_sem = threading.Semaphore(_MAX_CONN)
+
 def do_probe():
     samples = []
     lost = 0
@@ -126,6 +129,7 @@ def handle(conn):
         log_exception('handle failed')
     finally:
         conn.close()
+        _conn_sem.release()
 
 try:
     do_probe()
@@ -144,7 +148,10 @@ try:
     while True:
         try:
             conn, _ = srv.accept()
-            threading.Thread(target=handle, args=(conn,), daemon=True).start()
+            if _conn_sem.acquire(blocking=False):
+                threading.Thread(target=handle, args=(conn,), daemon=True).start()
+            else:
+                conn.close()  # connection limit reached — reject immediately
         except Exception:
             log_exception('accept failed')
             time.sleep(0.1)

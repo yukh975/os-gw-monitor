@@ -32,7 +32,16 @@ $status_file = '/tmp/gateways.status';
 if (file_exists($status_file)) {
     $fp = fopen($status_file, 'r+');
     if ($fp && flock($fp, LOCK_EX)) {
-        $raw    = stream_get_contents($fp);
+        // gateways.status is written by OPNsense core in PHP serialize format;
+        // ['allowed_classes' => false] prevents Object Injection attacks.
+        // Size guard prevents memory exhaustion from a crafted file.
+        $raw = stream_get_contents($fp, 1048576); // 1 MB cap
+        if (strlen($raw) >= 1048576) {
+            flock($fp, LOCK_UN);
+            fclose($fp);
+            echo "gateways.status too large, skipping\n";
+            goto cleanup_sockets;
+        }
         $status = @unserialize($raw, ['allowed_classes' => false]);
         if (is_array($status)) {
             foreach ($our_gateways as $gw) {
@@ -49,6 +58,7 @@ if (file_exists($status_file)) {
 }
 
 // Remove sockets and pid files (verify they are not symlinks)
+cleanup_sockets:
 foreach ($our_gateways as $gw) {
     $sock_path = "/var/run/dpinger_{$gw}.sock";
     $pid_path  = "/var/run/dpinger_{$gw}.pid";

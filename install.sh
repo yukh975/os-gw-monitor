@@ -9,7 +9,7 @@
 PLUGIN_DIR="$(cd "$(dirname "$0")/plugin" && pwd)"
 OPNSENSE_MVC="/usr/local/opnsense/mvc/app"
 
-PLUGIN_VERSION="1.0.12"
+PLUGIN_VERSION="1.1.0"
 VERSION_FILE="/var/db/gwmonitor-version"
 
 do_install() {
@@ -77,8 +77,8 @@ do_install() {
     sleep 3
 
     echo "  Clearing caches..."
-    rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
+    [ ! -L /tmp/opnsense_menu_cache.xml ] && rm -f /tmp/opnsense_menu_cache.xml
+    [ ! -L /var/lib/php/tmp/opnsense_menu_cache.xml ] && rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
 
     echo "  Starting monitors..."
     /usr/local/sbin/pluginctl -c monitor > /dev/null || true
@@ -120,8 +120,8 @@ do_uninstall_silent() {
     rm -f /usr/local/opnsense/service/conf/actions.d/actions_gwmonitor.conf
     killall -9 gateway_watcher.php > /dev/null 2> /dev/null || true
     rm -f /tmp/gateways.status
-    rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
+    [ ! -L /tmp/opnsense_menu_cache.xml ] && rm -f /tmp/opnsense_menu_cache.xml
+    [ ! -L /var/lib/php/tmp/opnsense_menu_cache.xml ] && rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
 }
 
 do_uninstall() {
@@ -169,8 +169,8 @@ do_uninstall() {
     /usr/local/sbin/pluginctl -c monitor > /dev/null || true
 
     echo "  Clearing caches..."
-    rm -f /tmp/opnsense_menu_cache.xml
-    rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
+    [ ! -L /tmp/opnsense_menu_cache.xml ] && rm -f /tmp/opnsense_menu_cache.xml
+    [ ! -L /var/lib/php/tmp/opnsense_menu_cache.xml ] && rm -f /var/lib/php/tmp/opnsense_menu_cache.xml || true
     rm -f /var/log/gwmonitor_*.log || true
 
     echo "  Restarting configd..."
