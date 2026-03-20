@@ -2,7 +2,7 @@
 
 ---
 
-# os-gw-monitor
+# os-gw-monitor 1.1.0
 
 [![Version](https://img.shields.io/badge/release-v1.1.0-blue)](https://github.com/yukh975/os-gw-monitor/releases)
 [![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)](https://opnsense.org)
