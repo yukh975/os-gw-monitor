@@ -29,7 +29,7 @@ class ServiceController extends ApiControllerBase
 
         return [
             'result'  => $failed ? 'failed' : 'ok',
-            'message' => $output,
+            'message' => $failed ? 'Reconfiguration failed' : $output,
         ];
     }
 
@@ -74,10 +74,11 @@ class ServiceController extends ApiControllerBase
 
         $backend = new Backend();
         $output  = trim($backend->configdRun('gwmonitor start ' . escapeshellarg($uuid)));
+        $ok      = stripos($output, 'OK') !== false;
 
         return [
-            'result'  => empty($output) ? 'failed' : 'ok',
-            'message' => $output ?: 'No response from configd',
+            'result'  => $ok ? 'ok' : 'failed',
+            'message' => $ok ? $output : 'Failed to start monitor',
         ];
     }
 
@@ -101,10 +102,11 @@ class ServiceController extends ApiControllerBase
 
         $backend = new Backend();
         $output  = trim($backend->configdRun('gwmonitor stop ' . escapeshellarg($uuid)));
+        $ok      = stripos($output, 'OK') !== false;
 
         return [
-            'result'  => empty($output) ? 'failed' : 'ok',
-            'message' => $output ?: 'No response from configd',
+            'result'  => $ok ? 'ok' : 'failed',
+            'message' => $ok ? $output : 'Failed to stop monitor',
         ];
     }
 }

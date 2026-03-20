@@ -48,10 +48,12 @@ if (file_exists($status_file)) {
     }
 }
 
-// Удалить сокеты и pid файлы
+// Удалить сокеты и pid файлы (проверяем что это не symlink)
 foreach ($our_gateways as $gw) {
-    @unlink("/var/run/dpinger_{$gw}.sock");
-    @unlink("/var/run/dpinger_{$gw}.pid");
+    $sock_path = "/var/run/dpinger_{$gw}.sock";
+    $pid_path  = "/var/run/dpinger_{$gw}.pid";
+    if (file_exists($sock_path) && !is_link($sock_path)) @unlink($sock_path);
+    if (file_exists($pid_path)  && !is_link($pid_path))  @unlink($pid_path);
     echo "Removed socket/pid for {$gw}\n";
 }
 

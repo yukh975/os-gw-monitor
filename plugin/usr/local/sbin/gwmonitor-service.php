@@ -75,10 +75,17 @@ function get_monitors(): array
 
         $probe_host = (string)$node->probe_host;
 
+        $probe_count    = (int)$node->probe_count    ?: 5;
+        $probe_interval = (int)$node->probe_interval ?: 25;
+        $probe_timeout  = (int)$node->probe_timeout  ?: 5;
+
         if (!is_valid_uuid($uuid) || !is_valid_gw_name($gw_name)) continue;
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $probe_if)) continue;
         if ($probe_port < 1 || $probe_port > 65535) continue;
         if (!is_valid_probe_host($probe_host)) continue;
+        if ($probe_count < 1    || $probe_count > 20)    continue;
+        if ($probe_interval < 5 || $probe_interval > 300) continue;
+        if ($probe_timeout < 1  || $probe_timeout > 30)  continue;
 
         $monitors[$uuid] = [
             'uuid'           => $uuid,
@@ -87,9 +94,9 @@ function get_monitors(): array
             'probe_if'       => $probe_if,
             'probe_host'     => $probe_host,
             'probe_port'     => $probe_port,
-            'probe_count'    => (int)$node->probe_count    ?: 5,
-            'probe_interval' => (int)$node->probe_interval ?: 25,
-            'probe_timeout'  => (int)$node->probe_timeout  ?: 5,
+            'probe_count'    => $probe_count,
+            'probe_interval' => $probe_interval,
+            'probe_timeout'  => $probe_timeout,
             'description'    => (string)$node->description,
         ];
     }
@@ -141,9 +148,11 @@ function start_instance(array $m): void
     exec($cmd, $out, $rc);
 
     // Ждём появления сокета (до 10 секунд)
+    // Используем lstat() для атомарной проверки без следования symlink
     for ($i = 0; $i < 20; $i++) {
         usleep(500000);
-        if (file_exists($sock) && filetype($sock) === 'socket') break;
+        $stat = @lstat($sock);
+        if ($stat !== false && ($stat['mode'] & 0170000) === 0140000) break; // S_IFSOCK
     }
 
     // Ищем PID python-процесса

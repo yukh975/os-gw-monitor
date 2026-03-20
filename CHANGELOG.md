@@ -4,6 +4,12 @@
 
 # Changelog
 
+## [1.0.11] — 2026-03-20
+- 🔒 Security: Symlink attack protection — `unlink()` now checks `is_link()` before removing socket/pid files
+- 🔒 Security: TOCTOU fix — socket existence check replaced with atomic `lstat()` + mode bitmask (no symlink follow)
+- 🔒 Security: Added range validation for `probe_count` (1–20), `probe_interval` (5–300), `probe_timeout` (1–30) in PHP
+- 🔒 Security: API error responses no longer expose raw configd output — error details replaced with generic messages
+
 ## [1.0.10] — 2026-03-20
 - 🔒 Security: SSRF protection — blocked loopback (127.0.0.0/8, ::1), link-local (169.254.0.0/16, fe80::/10) and unspecified addresses in Python probe and PHP service
 - 🔒 Security: Added `probe_host` validation in PHP (loopback/link-local/unspecified blocked)

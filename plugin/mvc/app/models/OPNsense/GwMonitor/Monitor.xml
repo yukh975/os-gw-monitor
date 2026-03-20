@@ -2,7 +2,7 @@
 <model>
     <mount>//OPNsense/GwMonitor</mount>
     <description>Gateway HTTP Monitor</description>
-    <version>1.0.10</version>
+    <version>1.0.11</version>
     <items>
         <monitors type="ArrayField">
             <enabled type="BooleanField">
