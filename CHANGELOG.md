@@ -5,37 +5,23 @@
 # Changelog
 
 ## [1.0.12] — 2026-03-20
-- 🔒 Security: SSRF — Python probe now also blocks `is_reserved`, `is_multicast` and IPv4-mapped IPv6 addresses (`::ffff:127.x.x.x`)
-- 🔒 Security: SSRF — PHP `is_valid_probe_host()` fully rewritten with binary IPv6 checks: blocks multicast (`ff00::/8`), link-local (`fe80::/10`), site-local (`fec0::/10`), unique-local (`fc00::/7`), IPv4-mapped loopback/link-local, broadcast, reserved
-- 🔒 Security: Unix socket permissions tightened from `0o660` to `0o600` (owner only)
-
-## [1.0.11] — 2026-03-20
-- 🔒 Security: Symlink attack protection — `unlink()` now checks `is_link()` before removing socket/pid files
-- 🔒 Security: TOCTOU fix — socket existence check replaced with atomic `lstat()` + mode bitmask (no symlink follow)
-- 🔒 Security: Added range validation for `probe_count` (1–20), `probe_interval` (5–300), `probe_timeout` (1–30) in PHP
-- 🔒 Security: API error responses no longer expose raw configd output — error details replaced with generic messages
-
-## [1.0.10] — 2026-03-20
-- 🔒 Security: SSRF protection — blocked loopback (127.0.0.0/8, ::1), link-local (169.254.0.0/16, fe80::/10) and unspecified addresses in Python probe and PHP service
-- 🔒 Security: Added `probe_host` validation in PHP (loopback/link-local/unspecified blocked)
+- 🔒 Security: Unix socket permissions tightened to `0o600` (owner only)
+- 🔒 Security: SSRF — full IPv6 protection: blocked multicast (`ff00::/8`), link-local (`fe80::/10`), site-local (`fec0::/10`), unique-local (`fc00::/7`), IPv4-mapped addresses (`::ffff:127.x.x.x`), broadcast, reserved ranges
+- 🔒 Security: SSRF — Python probe blocks `is_reserved` and `is_multicast` via `ipaddress` module
+- 🔒 Security: Symlink attack protection — `unlink()` checks `is_link()` before removing socket/pid files
+- 🔒 Security: TOCTOU fix — socket existence check replaced with atomic `lstat()` + `S_IFSOCK` bitmask
 - 🔒 Security: Added exclusive lock on `reconfigure` to prevent race condition on concurrent calls
-- 🐛 Fixed: blocked hostnames list expanded (`localhost`, `ip6-localhost`, `ip6-loopback`)
-
-## [1.0.9] — 2026-03-20
-- 🔒 Security: Added input validation in Python probe (gw_name, probe_host, probe_port, probe_if)
-- 🔒 Security: probe_port validated as integer in range 1–65535 in PHP and Python
-- 🔒 Security: probe_if validated against safe pattern `[a-zA-Z0-9_]+` in PHP
-- 🔒 Security: Fixed information disclosure — backend errors no longer expose raw configd output
-- 🐛 Fixed incorrect log filename (`tun2socks_socket.log` → `gwmonitor_<name>.log`)
-
-## [1.0.8] — 2026-03-20
-- 🔒 Security: Unix socket permissions changed from `0o666` to `0o660`
-- 🔒 Security: Fixed TOCTOU race condition on socket creation
+- 🔒 Security: Added range validation for `probe_count` (1–20), `probe_interval` (5–300), `probe_timeout` (1–30) in PHP
+- 🔒 Security: Added input validation in Python probe for `gw_name`, `probe_host`, `probe_port`, `probe_if`
+- 🔒 Security: `probe_port` validated as integer 1–65535; `probe_if` validated against `[a-zA-Z0-9_]+` in PHP
+- 🔒 Security: `probe_host` blocked for loopback (127.0.0.0/8, ::1), link-local (169.254.0.0/16), unspecified in PHP and Python
 - 🔒 Security: Added `gw_name` validation against path traversal (`[a-zA-Z0-9_-]` only)
 - 🔒 Security: Added UUID format validation before passing to shell commands
 - 🔒 Security: Replaced `shell_exec("kill -0 ...")` with `posix_kill()`
 - 🔒 Security: Added file locking for `/tmp/gateways.status` operations
 - 🔒 Security: Added `htmlspecialchars()` on interface descriptions in API output
+- 🔒 Security: API error responses no longer expose raw configd output
+- 🐛 Fixed incorrect log filename (`tun2socks_socket.log` → `gwmonitor_<name>.log`)
 
 ## [1.0.7] — 2026-03-19
 - 🐛 Version file not deleted on uninstall
