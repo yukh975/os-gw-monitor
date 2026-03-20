@@ -103,10 +103,23 @@ do_install() {
     echo "  System → Settings → Cron → Command: GW Monitor Watchdog, all fields: *"
 }
 
+_kill_monitors() {
+    # Kill by PID files — avoids killing unrelated processes via pkill -f
+    for pidfile in /var/run/dpinger_*.pid; do
+        [ -f "$pidfile" ] && [ ! -L "$pidfile" ] || continue
+        pid="$(cat "$pidfile" 2>/dev/null)"
+        case "$pid" in
+            ''|*[!0-9]*) continue ;;
+        esac
+        kill "$pid" > /dev/null 2>&1 || true
+    done
+    sleep 1
+}
+
 do_uninstall_silent() {
     # Silent removal during upgrade — always preserves settings
-    pkill -f "gw_monitor_probe.py" > /dev/null || true
-    sleep 1
+    _kill_monitors
+
     php /usr/local/sbin/gwmonitor-cleanup.php
     rm -f /usr/local/sbin/gw_monitor_probe.py
     rm -f /usr/local/sbin/gwmonitor-service.php
@@ -136,8 +149,7 @@ do_uninstall() {
     read PURGE_CHOICE
 
     echo "  Stopping monitors..."
-    pkill -f "gw_monitor_probe.py" > /dev/null || true
-    sleep 1
+    _kill_monitors
 
     echo "  Clearing gateway status and sockets..."
     case "$PURGE_CHOICE" in

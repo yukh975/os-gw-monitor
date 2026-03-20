@@ -5,12 +5,23 @@
 # Changelog
 
 ## [1.1.0] — 2026-03-20
-- 🚀 Development version on main branch
+- 🚀 Development version on devel branch
 - 🔒 Security: `gw_monitor_probe.py` — added connection semaphore (`_MAX_CONN = 10`) to prevent DoS via unlimited thread spawning on socket accept
 - 🔒 Security: `gwmonitor-cleanup.php` — added 1 MB size cap before `unserialize()` to prevent memory exhaustion from crafted `gateways.status`
 - 🔒 Security: `MonitorController.php` — empty `gw_name` now returns a validation error in both `addMonitor` and `setMonitor` (previously bypassed duplicate check and fell through to model save)
 - 🔒 Security: `install.sh` — all `rm -f /tmp/opnsense_menu_cache.xml` calls now guarded with `[ ! -L ... ]` to prevent symlink-based file deletion
 - 🔒 Security: `Monitor.xml` — `probe_host` mask extended to accept bracketed IPv6 addresses (`[2001:db8::1]`), consistent with PHP and Python validation layers
+- 🔒 Security: `gw_monitor_probe.py` — symlink attack protection on log file: process exits if log path is a symlink
+- 🔒 Security: `gw_monitor_probe.py` — socket connection timeout (`_CONN_TIMEOUT = 5s`) prevents hung clients from exhausting all semaphore slots
+- 🔒 Security: `gw_monitor_probe.py` — Python process writes its own PID atomically at startup; eliminates unreliable `pgrep`/`ps` pattern matching in PHP
+- 🔒 Security: `gwmonitor-service.php` — `exec("kill")` replaced with `posix_kill(SIGTERM/SIGKILL)` for safe, fork-free process termination
+- 🔒 Security: `gwmonitor-service.php` — DNS rebinding protection: hostnames resolved once at validation time; resulting IP validated against blocked ranges
+- 🔒 Security: `gw_monitor_probe.py` — added range validation for `count` (1–20), `interval` (5–300), `timeout` (1–30) with try/except on `int()` conversion
+- 🔒 Security: `gw_monitor_probe.py` — PID file created with permissions `0o600` (owner-only read)
+- 🔒 Security: `gwmonitor-service.php` — added `stream_set_timeout(1)` on socket read to prevent indefinite blocking in `read_socket()`
+- 🔒 Security: `gwmonitor-service.php` — added `is_numeric()` validation on socket data parts before casting to int
+- 🔒 Security: `install.sh` — `pkill -f` replaced with PID-file-based killing via `_kill_monitors()` to prevent accidentally killing unrelated processes
+- 🔧 Code: `gwmonitor-cleanup.php` — replaced `goto` with structured `if/else` block
 
 ## [1.0.12] — 2026-03-20
 - 🔒 Security: TOCTOU fix in `read_socket()` — replaced `file_exists()` with atomic `lstat()` + `is_link()` check

@@ -37,20 +37,18 @@ if (file_exists($status_file)) {
         // Size guard prevents memory exhaustion from a crafted file.
         $raw = stream_get_contents($fp, 1048576); // 1 MB cap
         if (strlen($raw) >= 1048576) {
-            flock($fp, LOCK_UN);
-            fclose($fp);
             echo "gateways.status too large, skipping\n";
-            goto cleanup_sockets;
-        }
-        $status = @unserialize($raw, ['allowed_classes' => false]);
-        if (is_array($status)) {
-            foreach ($our_gateways as $gw) {
-                unset($status[$gw]);
+        } else {
+            $status = @unserialize($raw, ['allowed_classes' => false]);
+            if (is_array($status)) {
+                foreach ($our_gateways as $gw) {
+                    unset($status[$gw]);
+                }
+                ftruncate($fp, 0);
+                rewind($fp);
+                fwrite($fp, serialize($status));
+                echo "Cleared gateways.status\n";
             }
-            ftruncate($fp, 0);
-            rewind($fp);
-            fwrite($fp, serialize($status));
-            echo "Cleared gateways.status\n";
         }
         flock($fp, LOCK_UN);
         fclose($fp);
@@ -58,7 +56,6 @@ if (file_exists($status_file)) {
 }
 
 // Remove sockets and pid files (verify they are not symlinks)
-cleanup_sockets:
 foreach ($our_gateways as $gw) {
     $sock_path = "/var/run/dpinger_{$gw}.sock";
     $pid_path  = "/var/run/dpinger_{$gw}.pid";
