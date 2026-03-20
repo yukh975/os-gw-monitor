@@ -24,6 +24,9 @@
 - 🔒 Security: `install.sh` — `_kill_monitors()` now verifies via `ps` that the PID belongs to `gw_monitor_probe` before sending signal (prevents killing recycled PIDs)
 - 🔒 Security: `gw_monitor_probe.py` — bare IPv6 addresses automatically wrapped in brackets in curl URL to prevent malformed requests
 - 🔒 Security: `gwmonitor-service.php` — reconfigure lock file removed after use (`@unlink`)
+- 🔒 Security: `gwmonitor-service.php` — symlink check added before `fopen()` on reconfigure lock file
+- 🔒 Security: `install.sh` — `_kill_monitors()` grep tightened to `python3.*gw_monitor_probe\.py` (exact match)
+- 🔒 Security: `gw_monitor.inc` — `shell_exec()` null return now detected and reported instead of silently ignored
 - 🔧 Code: `gwmonitor-cleanup.php` — replaced `goto` with structured `if/else` block
 
 ## [1.0.12] — 2026-03-20

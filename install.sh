@@ -112,7 +112,7 @@ _kill_monitors() {
             ''|*[!0-9]*) continue ;;
         esac
         # Verify the PID still belongs to our monitor before killing
-        ps -p "$pid" -o args= 2>/dev/null | grep -q "gw_monitor_probe" || continue
+        ps -p "$pid" -o args= 2>/dev/null | grep -qE "python3.*gw_monitor_probe\.py" || continue
         kill "$pid" > /dev/null 2>&1 || true
     done
     sleep 1

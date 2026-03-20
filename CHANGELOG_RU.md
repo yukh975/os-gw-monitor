@@ -24,6 +24,9 @@
 - 🔒 Безопасность: `install.sh` — `_kill_monitors()` теперь проверяет через `ps`, что PID принадлежит `gw_monitor_probe`, перед отправкой сигнала (защита от переиспользованных PID)
 - 🔒 Безопасность: `gw_monitor_probe.py` — IPv6-адреса без скобок автоматически оборачиваются в `[]` в URL для curl
 - 🔒 Безопасность: `gwmonitor-service.php` — lock-файл reconfigure удаляется после использования (`@unlink`)
+- 🔒 Безопасность: `gwmonitor-service.php` — добавлена проверка `is_link()` перед `fopen()` lock-файла reconfigure
+- 🔒 Безопасность: `install.sh` — grep в `_kill_monitors()` уточнён до `python3.*gw_monitor_probe\.py`
+- 🔒 Безопасность: `gw_monitor.inc` — null-результат `shell_exec()` теперь обнаруживается и выводится как ошибка
 - 🔧 Код: `gwmonitor-cleanup.php` — `goto` заменён структурным блоком `if/else`
 
 ## [1.0.12] — 2026-03-20
