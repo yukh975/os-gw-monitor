@@ -83,8 +83,6 @@ do_install() {
 
     echo "  Starting monitors..."
     /usr/local/sbin/pluginctl -c monitor > /dev/null || true
-    sleep 2
-    /usr/local/sbin/gwmonitor-service.php reconfigure
 
     # Write version file
     install -m 0644 "${PLUGIN_DIR}/var/db/gwmonitor-version" \
