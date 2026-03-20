@@ -11,6 +11,11 @@
 - 🔒 Security: `MonitorController.php` — empty `gw_name` now returns a validation error in both `addMonitor` and `setMonitor` (previously bypassed duplicate check and fell through to model save)
 - 🔒 Security: `install.sh` — all `rm -f /tmp/opnsense_menu_cache.xml` calls now guarded with `[ ! -L ... ]` to prevent symlink-based file deletion
 - 🔒 Security: `Monitor.xml` — `probe_host` mask extended to accept bracketed IPv6 addresses (`[2001:db8::1]`), consistent with PHP and Python validation layers
+- 🔒 Security: `gw_monitor_probe.py` — symlink attack protection on log file: process exits if log path is a symlink
+- 🔒 Security: `gw_monitor_probe.py` — socket connection timeout (`_CONN_TIMEOUT = 5s`) prevents hung clients from exhausting all semaphore slots
+- 🔒 Security: `gw_monitor_probe.py` — Python process writes its own PID atomically at startup; eliminates unreliable `pgrep`/`ps` pattern matching in PHP
+- 🔒 Security: `gwmonitor-service.php` — `exec("kill")` replaced with `posix_kill(SIGTERM/SIGKILL)` for safe, fork-free process termination
+- 🔒 Security: `gwmonitor-service.php` — DNS rebinding protection: hostnames resolved once at validation time; resulting IP validated against blocked ranges
 
 ## [1.0.12] — 2026-03-20
 - 🔒 Security: TOCTOU fix in `read_socket()` — replaced `file_exists()` with atomic `lstat()` + `is_link()` check

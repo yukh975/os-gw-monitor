@@ -50,8 +50,14 @@ def _validate_args():
 
 gw_name_raw = _validate_args()
 
+# Refuse to write logs if the target path is a symlink (symlink attack protection)
+_log_path = '/var/log/gwmonitor_{}.log'.format(gw_name_raw)
+if os.path.islink(_log_path):
+    sys.stderr.write('Log file is a symlink, refusing to start: {}\n'.format(_log_path))
+    sys.exit(1)
+
 logging.basicConfig(
-    filename='/var/log/gwmonitor_{}.log'.format(gw_name_raw),
+    filename=_log_path,
     level=logging.WARNING,
     format='%(asctime)s %(levelname)s %(message)s'
 )
@@ -68,11 +74,22 @@ count      = int(sys.argv[6])
 interval   = int(sys.argv[7])
 timeout    = int(sys.argv[8])
 
+# Write own PID atomically so PHP doesn't need to find it via pgrep/ps
+_pid_path = '/var/run/dpinger_{}.pid'.format(gw_name)
+try:
+    with open(_pid_path, 'w') as _f:
+        _f.write(str(os.getpid()))
+except Exception as _e:
+    sys.stderr.write('Failed to write PID file: {}\n'.format(_e))
+    sys.exit(1)
+
 state = {'lat': 0, 'std': 0, 'loss': 100}
 state_lock = threading.Lock()
 
 _MAX_CONN = 10
 _conn_sem = threading.Semaphore(_MAX_CONN)
+
+_CONN_TIMEOUT = 5  # seconds — prevent hung connections from holding semaphore slots
 
 def do_probe():
     samples = []
@@ -122,6 +139,7 @@ def probe_loop():
 
 def handle(conn):
     try:
+        conn.settimeout(_CONN_TIMEOUT)
         with state_lock:
             msg = '{} {} {} {}\n'.format(gw_name, state['lat'], state['std'], state['loss'])
         conn.sendall(msg.encode())

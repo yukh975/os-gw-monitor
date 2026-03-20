@@ -71,8 +71,10 @@ function is_valid_probe_host(string $host): bool
         return true;
     }
 
-    // Hostname — allow (DNS resolution happens at curl time)
-    return true;
+    // Hostname — resolve once and validate the resulting IP to prevent DNS rebinding
+    $resolved = gethostbyname($host);
+    if ($resolved === $host) return false; // resolution failed
+    return is_valid_probe_host($resolved);
 }
 
 /**
@@ -177,26 +179,7 @@ function start_instance(array $m): void
         $stat = @lstat($sock);
         if ($stat !== false && ($stat['mode'] & 0170000) === 0140000) break; // S_IFSOCK
     }
-
-    // Find the PID of the python process by exact match of the socket path
-    $escaped_sock = preg_quote($sock, '/');
-    exec("pgrep -f " . escapeshellarg("gw_monitor_probe\\.py " . $sock), $pids);
-    // Filter by exact match — exclude processes with similar names
-    $matched_pid = null;
-    foreach ($pids as $candidate) {
-        $candidate = (int)trim($candidate);
-        if ($candidate <= 0) continue;
-        exec("ps -p " . $candidate . " -o args=", $args);
-        if (!empty($args) && strpos(trim($args[0]), $sock) !== false
-            && strpos(trim($args[0]), 'gw_monitor_probe.py') !== false
-            && substr_count(trim($args[0]), $sock) === 1) {
-            $matched_pid = $candidate;
-            break;
-        }
-    }
-    if ($matched_pid !== null) {
-        file_put_contents($pid, $matched_pid);
-    }
+    // PID is written atomically by the Python process itself at startup
 }
 
 /**
@@ -211,10 +194,10 @@ function stop_instance(string $gw_name): void
     if (file_exists($pidfile) && !is_link($pidfile)) {
         $pid = (int)trim(file_get_contents($pidfile));
         if ($pid > 0) {
-            exec("kill " . (int)$pid);
+            posix_kill($pid, SIGTERM);
             usleep(500000);
-            // Force kill by exact PID — not by string pattern
-            if (posix_kill($pid, 0)) exec("kill -9 " . (int)$pid);
+            // Force kill by exact PID if still alive
+            if (posix_kill($pid, 0)) posix_kill($pid, SIGKILL);
         }
     }
 
