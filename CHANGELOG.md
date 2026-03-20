@@ -32,6 +32,7 @@
 - 🔒 Security: `install.sh` — `_kill_monitors()` grep tightened to `python3.*gw_monitor_probe\.py` (exact match)
 - 🔒 Security: `gw_monitor.inc` — `shell_exec()` null return now detected and reported instead of silently ignored
 - 🔧 Code: `gwmonitor-cleanup.php` — replaced `goto` with structured `if/else` block
+- ✨ Feature: `install.sh` — added `reinstall` command: silently removes current version (preserving settings) and reinstalls fresh, bypassing the same-version skip check
 
 ## [1.0.12] — 2026-03-20
 - 🔒 Security: TOCTOU fix in `read_socket()` — replaced `file_exists()` with atomic `lstat()` + `is_link()` check

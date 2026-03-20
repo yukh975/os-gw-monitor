@@ -90,6 +90,18 @@ If the version has not changed, the installation will be skipped.
 
 ---
 
+## Reinstall
+
+To reinstall the current version without upgrading (e.g. after manual file changes or to reset a broken installation):
+
+```sh
+sh install.sh reinstall
+```
+
+The script performs a silent removal (settings in `config.xml` are preserved) and then installs fresh — identical to a clean install of the same version.
+
+---
+
 ## Removal
 
 ```sh

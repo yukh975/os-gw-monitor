@@ -3,6 +3,7 @@
 # os-gw-monitor install.sh
 # Usage:
 #   sh install.sh           — install
+#   sh install.sh reinstall — reinstall (preserve settings)
 #   sh install.sh uninstall — uninstall
 # =============================================================
 
@@ -82,8 +83,6 @@ do_install() {
 
     echo "  Starting monitors..."
     /usr/local/sbin/pluginctl -c monitor > /dev/null || true
-    sleep 2
-    /usr/local/sbin/gwmonitor-service.php reconfigure
 
     # Write version file
     install -m 0644 "${PLUGIN_DIR}/var/db/gwmonitor-version" \
@@ -116,6 +115,12 @@ _kill_monitors() {
         kill "$pid" > /dev/null 2>&1 || true
     done
     sleep 1
+}
+
+do_reinstall() {
+    echo "=== Reinstalling os-gw-monitor v${PLUGIN_VERSION} ==="
+    do_uninstall_silent
+    do_install
 }
 
 do_uninstall_silent() {
@@ -196,6 +201,7 @@ do_uninstall() {
 }
 
 case "$1" in
-    uninstall) do_uninstall ;;
-    *)         do_install   ;;
+    uninstall) do_uninstall  ;;
+    reinstall) do_reinstall  ;;
+    *)         do_install    ;;
 esac
