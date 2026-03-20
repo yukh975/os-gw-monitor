@@ -82,12 +82,14 @@ try:
     do_probe()
     threading.Thread(target=probe_loop, daemon=True).start()
 
-    if os.path.exists(sock_path):
+    try:
         os.unlink(sock_path)
+    except OSError:
+        pass
 
     srv = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     srv.bind(sock_path)
-    os.chmod(sock_path, 0o666)
+    os.chmod(sock_path, 0o660)
     srv.listen(5)
 
     while True:

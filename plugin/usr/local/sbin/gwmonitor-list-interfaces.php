@@ -23,7 +23,7 @@ $config = simplexml_load_file('/conf/config.xml');
 if ($config) {
     foreach ($config->interfaces->children() as $name => $iface) {
         $dev = (string)$iface->if;
-        $descr = !empty((string)$iface->descr) ? (string)$iface->descr : strtoupper($name);
+        $descr = !empty((string)$iface->descr) ? htmlspecialchars((string)$iface->descr, ENT_QUOTES, 'UTF-8') : strtoupper($name);
         if ($dev) {
             $descriptions[$dev] = $descr;
         }

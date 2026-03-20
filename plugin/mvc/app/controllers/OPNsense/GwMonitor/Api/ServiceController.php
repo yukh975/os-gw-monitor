@@ -68,6 +68,9 @@ class ServiceController extends ApiControllerBase
         if (empty($uuid)) {
             return ['result' => 'failed', 'message' => 'uuid required'];
         }
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid)) {
+            return ['result' => 'failed', 'message' => 'invalid uuid'];
+        }
 
         $backend = new Backend();
         $output  = trim($backend->configdRun('gwmonitor start ' . escapeshellarg($uuid)));
@@ -91,6 +94,9 @@ class ServiceController extends ApiControllerBase
         $uuid = $this->request->getPost('uuid');
         if (empty($uuid)) {
             return ['result' => 'failed', 'message' => 'uuid required'];
+        }
+        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid)) {
+            return ['result' => 'failed', 'message' => 'invalid uuid'];
         }
 
         $backend = new Backend();

@@ -8,10 +8,15 @@
 $xml = simplexml_load_file('/conf/config.xml');
 $our_gateways = [];
 
+function is_valid_gw_name(string $name): bool
+{
+    return preg_match('/^[a-zA-Z0-9_-]+$/', $name) === 1;
+}
+
 if (isset($xml->OPNsense->GwMonitor)) {
     foreach ($xml->OPNsense->GwMonitor->monitors as $m) {
         $gw = trim((string)$m->gw_name);
-        if (!empty($gw)) {
+        if (!empty($gw) && is_valid_gw_name($gw)) {
             $our_gateways[] = $gw;
         }
     }
@@ -25,13 +30,21 @@ if (empty($our_gateways)) {
 // Очистить gateways.status
 $status_file = '/tmp/gateways.status';
 if (file_exists($status_file)) {
-    $status = @unserialize(file_get_contents($status_file), ['allowed_classes' => false]);
-    if (is_array($status)) {
-        foreach ($our_gateways as $gw) {
-            unset($status[$gw]);
+    $fp = fopen($status_file, 'r+');
+    if ($fp && flock($fp, LOCK_EX)) {
+        $raw    = stream_get_contents($fp);
+        $status = @unserialize($raw, ['allowed_classes' => false]);
+        if (is_array($status)) {
+            foreach ($our_gateways as $gw) {
+                unset($status[$gw]);
+            }
+            ftruncate($fp, 0);
+            rewind($fp);
+            fwrite($fp, serialize($status));
+            echo "Cleared gateways.status\n";
         }
-        file_put_contents($status_file, serialize($status));
-        echo "Cleared gateways.status\n";
+        flock($fp, LOCK_UN);
+        fclose($fp);
     }
 }
 

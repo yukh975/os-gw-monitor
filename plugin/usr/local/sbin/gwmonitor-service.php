@@ -20,6 +20,16 @@ $SOCKET_PY = '/usr/local/sbin/gw_monitor_probe.py';
 $RUN_DIR   = '/var/run';
 $LOG_DIR   = '/var/log';
 
+function is_valid_gw_name(string $name): bool
+{
+    return preg_match('/^[a-zA-Z0-9_-]+$/', $name) === 1;
+}
+
+function is_valid_uuid(string $uuid): bool
+{
+    return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) === 1;
+}
+
 /**
  * Читает все инстансы из config.xml
  */
@@ -37,10 +47,13 @@ function get_monitors(): array
     foreach ($nodes as $node) {
         $uuid = (string)$node->attributes()['uuid'] ?? null;
         if (!$uuid) continue;
+        $gw_name = (string)$node->gw_name;
+        if (!is_valid_uuid($uuid) || !is_valid_gw_name($gw_name)) continue;
+
         $monitors[$uuid] = [
             'uuid'           => $uuid,
             'enabled'        => (string)$node->enabled === '1',
-            'gw_name'        => (string)$node->gw_name,
+            'gw_name'        => $gw_name,
             'probe_if'       => (string)$node->probe_if,
             'probe_host'     => (string)$node->probe_host,
             'probe_port'     => (string)$node->probe_port,
@@ -63,8 +76,7 @@ function is_running(string $gw_name): bool
     $sockfile = "{$RUN_DIR}/dpinger_{$gw_name}.sock";
     if (!file_exists($pidfile) || !file_exists($sockfile)) return false;
     $pid = (int)trim(file_get_contents($pidfile));
-    return $pid > 0 && file_exists("/proc/$pid") || (shell_exec("kill -0 $pid; echo $?") == "0
-");
+    return $pid > 0 && posix_kill($pid, 0);
 }
 
 /**
@@ -212,6 +224,7 @@ switch ($action) {
 
     case 'start':
         if (!$param) { echo "ERROR: uuid required\n"; exit(1); }
+        if (!is_valid_uuid($param)) { echo "ERROR: invalid uuid\n"; exit(1); }
         $monitors = get_monitors();
         if (!isset($monitors[$param])) { echo "ERROR: monitor not found\n"; exit(1); }
         start_instance($monitors[$param]);
@@ -220,6 +233,7 @@ switch ($action) {
 
     case 'stop':
         if (!$param) { echo "ERROR: uuid required\n"; exit(1); }
+        if (!is_valid_uuid($param)) { echo "ERROR: invalid uuid\n"; exit(1); }
         $monitors = get_monitors();
         if (!isset($monitors[$param])) { echo "ERROR: monitor not found\n"; exit(1); }
         stop_instance($monitors[$param]['gw_name']);
