@@ -2,50 +2,57 @@
 
 ---
 
-# os-gw-monitor 1.1.0
+# os-gw-monitor
 
 [![Version](https://img.shields.io/badge/release-v1.1.0-blue)](https://github.com/yukh975/os-gw-monitor/releases)
 [![Platform](https://img.shields.io/badge/platform-OPNsense%2025.x--26.x-blue)](https://opnsense.org)
 [![FreeBSD](https://img.shields.io/badge/FreeBSD-14.3-red)](https://freebsd.org)
 [![License](https://img.shields.io/badge/license-BSD--2--Clause-green)](https://github.com/yukh975/os-gw-monitor/blob/main/LICENSE.md)
 
-**HTTP-based gateway monitoring plugin for OPNsense** — displays RTT, RTTd and Loss in `System → Gateways → Configuration` for gateways that do not support ICMP monitoring via the built-in `dpinger`.
+**HTTP gateway monitoring plugin for OPNsense.**
 
-Typical use cases: tun2socks (xray-core, sing-box), and any tunnel interfaces where ICMP is unavailable or undesirable.
+Monitors gateways that don't support ICMP and shows RTT, RTTd and Loss right in `System → Gateways → Configuration` — the same place as standard gateways.
+
+Designed for tunnel interfaces: tun2socks, xray-core, sing-box, WireGuard, and anything else where ICMP is unavailable or undesirable.
 
 ---
 
 ## How it works
 
-OPNsense uses `dpinger` to monitor gateways — it sends ICMP packets and reads results from a Unix socket `/var/run/dpinger_<GW_NAME>.sock`. This plugin emulates that socket: instead of ICMP, it probes the gateway via HTTP using `curl`, calculates RTT / RTTd / Loss, and responds in the format that OPNsense reads through its standard `dpinger_status()` mechanism.
+OPNsense uses `dpinger` to monitor gateways: it sends ICMP packets and reads results from a Unix socket at `/var/run/dpinger_<GW_NAME>.sock`. This plugin emulates that socket — instead of ICMP, it sends HTTP requests via `curl`, computes RTT / RTTd / Loss from the response time, and replies in the exact format OPNsense expects.
 
-Standard ICMP-monitored gateways continue to work in parallel and are not affected.
+Standard ICMP gateways are not affected and continue to work alongside.
 
 ```
-curl (HTTP probe)
-    ↓ time_starttransfer
-gw_monitor_probe.py
-    ↓ Unix socket /var/run/dpinger_<GW_NAME>.sock
-OPNsense dpinger_status()
-    ↓
-System → Gateways → Configuration (RTT / RTTd / Loss)
+curl  ──(HTTP)──▶  target host
+  time_starttransfer
+        │
+  gw_monitor_probe.py
+        │
+  /var/run/dpinger_<GW_NAME>.sock
+        │
+  OPNsense dpinger_status()
+        │
+  System → Gateways → Configuration
+    RTT / RTTd / Loss
 ```
 
-> **GW_NAME** — the name of your gateway in OPNsense.
+> `GW_NAME` is the gateway name as configured in OPNsense.
 
 ---
 
 ## Features
 
-- Monitor any number of gateways via HTTP
-- Configure each instance through the GUI: gateway, interface, host, port, probe count, interval, timeout
-- Dropdown lists of gateways and interfaces populated from the current OPNsense configuration
-- Duplicate protection — the same gateway cannot be added twice
-- Status displayed in `System → Gateways → Configuration` alongside standard gateways
-- Auto-restart via plugin hook when gateway settings are changed
-- Watchdog via Cron — restarts failed monitors every minute
-- Auto-upgrade on new version install with settings preserved
-- On removal — choose to keep settings for the next install or delete them completely
+| | |
+|---|---|
+| Multi-instance | Monitor any number of gateways independently |
+| Full GUI | Add and configure monitors at `System → Gateways → Monitoring` |
+| Live dropdowns | Gateway and interface lists pulled from current OPNsense config |
+| No duplicates | The same gateway cannot be added twice |
+| Auto-start | Monitors restart automatically when gateway settings change |
+| Watchdog | Cron-based watchdog restarts crashed monitors |
+| Safe upgrades | New version installs preserve existing settings |
+| Safe removal | Choose to keep or delete settings on uninstall |
 
 ---
 
@@ -53,9 +60,11 @@ System → Gateways → Configuration (RTT / RTTd / Loss)
 
 | Component | Version |
 |-----------|---------|
-| OPNsense  | 25.x / 26.x |
-| Python    | 3.x (built into OPNsense) |
-| curl      | built into OPNsense |
+| OPNsense  | 25.x — 26.x |
+| Python    | 3.x *(built into OPNsense)* |
+| curl      | *(built into OPNsense)* |
+
+No external dependencies. No packages to install.
 
 ---
 
@@ -67,18 +76,15 @@ cd os-gw-monitor
 sh install.sh
 ```
 
-You can also download the latest release, extract it and install manually.
+Alternatively, download and extract the [latest release](https://github.com/yukh975/os-gw-monitor/releases/latest) and run `sh install.sh` from the extracted directory.
 
-After installation completes, refresh your browser with **Ctrl+F5**.
+After installation, press **Ctrl+F5** to refresh the browser.
 
 ---
 
 ## Upgrade
 
-When installing a new version over an existing one, the script automatically:
-1. Detects the currently installed version
-2. Performs a silent removal while preserving settings
-3. Installs the new version
+Run the installer — it detects the current version automatically:
 
 ```sh
 cd os-gw-monitor
@@ -86,19 +92,19 @@ git pull
 sh install.sh
 ```
 
-If the version has not changed, the installation will be skipped.
+The script removes the old version (settings are preserved), then installs the new one. If the version hasn't changed, installation is skipped.
 
 ---
 
 ## Reinstall
 
-To reinstall the current version without upgrading (e.g. after manual file changes or to reset a broken installation):
+To reinstall the current version in place — useful after manual file edits or to recover a broken installation:
 
 ```sh
 sh install.sh reinstall
 ```
 
-The script performs a silent removal (settings in `config.xml` are preserved) and then installs fresh — identical to a clean install of the same version.
+Settings in `config.xml` are preserved.
 
 ---
 
@@ -108,106 +114,110 @@ The script performs a silent removal (settings in `config.xml` are preserved) an
 sh install.sh uninstall
 ```
 
-The script will ask what to do with your settings:
+You will be asked what to do with monitor settings stored in `config.xml`:
 
-- **[k] Keep** — settings are preserved in `config.xml` and will be restored on the next install
-- **[d] Delete** — settings are permanently removed
+| Option | Effect |
+|--------|--------|
+| `k` — Keep *(default)* | Settings stay in `config.xml` and are restored on next install |
+| `d` — Delete | Settings are permanently removed |
 
-In both cases: monitors are stopped, sockets are removed, standard dpinger is restored, and the menu cache is cleared.
+In both cases: monitors are stopped, sockets are cleaned up, and the standard dpinger is restored.
 
 ---
 
 ## Configuration
 
-### 1. Add monitors
+### Step 1 — Add monitors
 
 Go to `System → Gateways → Monitoring`, click **+** and fill in the form:
 
 | Field | Description |
 |-------|-------------|
-| **Enabled** | Enable or disable this instance |
-| **Gateway Name** | Gateway from the `System → Gateways` list |
-| **Interface** | Network interface to bind the curl probe |
-| **Probe Host** | IP or hostname for the HTTP request (e.g. `1.1.1.1`) |
+| **Enabled** | Enable or disable this monitor |
+| **Gateway Name** | Gateway from `System → Gateways` |
+| **Interface** | Network interface used for probing |
+| **Probe Host** | IP or hostname to send HTTP requests to (e.g. `1.1.1.1`) |
 | **Probe Port** | TCP port (default: `80`) |
-| **Probe Count** | Number of probes per cycle (1–20, default: `5`) |
-| **Interval (s)** | Seconds between measurement cycles (5–300, default: `25`) |
-| **Timeout (s)** | Timeout per probe in seconds (1–30, default: `5`) |
-| **Description** | Optional description |
+| **Probe Count** | Requests per cycle — 1–20 (default: `5`) |
+| **Interval (s)** | Seconds between cycles — 5–300 (default: `25`) |
+| **Timeout (s)** | Per-request timeout in seconds — 1–30 (default: `5`) |
+| **Description** | Optional label |
 
-Click **Apply** — monitors will start automatically.
+Click **Apply** to start the monitor immediately.
 
-### 2. Disable standard gateway monitoring
+### Step 2 — Disable built-in monitoring for the gateway
 
-For each gateway you plan to monitor with this plugin, go to `System → Gateways → Configuration → Edit` and enable **Disable Gateway Monitoring**. This turns off the built-in dpinger for that gateway and prevents conflicts with the plugin.
+In `System → Gateways → Configuration`, edit each gateway you are monitoring with this plugin and enable **Disable Gateway Monitoring**. This prevents dpinger from conflicting with the plugin's socket.
 
-### 3. Add watchdog to Cron
+### Step 3 — Add a watchdog
 
-`System → Settings → Cron → +`
+Go to `System → Settings → Cron` and add a new job:
 
 | Field | Value |
 |-------|-------|
 | Minutes | `*` |
 | Hours | `*` |
-| Day / Month / Week | `*` |
+| Day / Month / Weekday | `*` |
 | Command | `Gateway Monitor Watchdog` |
-| Parameters | *(empty)* |
+| Parameters | *(leave empty)* |
+
+The watchdog checks every minute and restarts any monitor that has stopped unexpectedly.
 
 ---
 
-## CLI management
+## CLI reference
 
 ```sh
-# Monitor status
+# Show status of all monitors
 configctl gwmonitor status
 
-# Restart all monitors
+# Reload configuration and restart all monitors
 configctl gwmonitor reconfigure
 
-# Start / stop a specific instance
+# Start or stop a specific monitor by UUID
 configctl gwmonitor start <uuid>
 configctl gwmonitor stop <uuid>
 
-# Run watchdog manually
+# Run the watchdog manually
 configctl gwmonitor watchdog
 
-# Logs
-tail -f /var/log/gwmonitor_GW_NAME.log
+# Follow logs for a specific gateway
+tail -f /var/log/gwmonitor_<GW_NAME>.log
 ```
 
 ---
 
-## File structure
+## About the metrics
+
+The plugin measures `time_starttransfer` from `curl` — time to first byte (TTFB). For tunnel protocols, this reflects the full round-trip including connection setup through the tunnel.
+
+> RTT values will naturally be higher than ICMP: ICMP measures raw network latency, while TTFB includes TCP handshake and server processing time. This is expected and consistent across all monitors.
+
+---
+
+## File layout
 
 ```
 /usr/local/sbin/
 ├── gw_monitor_probe.py           # Probe daemon + Unix socket server
-├── gwmonitor-service.php         # Backend: instance management
+├── gwmonitor-service.php         # Instance lifecycle management
 ├── gwmonitor-list-interfaces.php # Interface list for GUI dropdowns
-└── gwmonitor-cleanup.php         # Cleanup on removal
+└── gwmonitor-cleanup.php         # Cleanup on uninstall
 
 /var/db/
-└── gwmonitor-version             # Currently installed plugin version
+└── gwmonitor-version             # Installed version marker
 
 /usr/local/etc/inc/plugins.inc.d/
-└── gw_monitor.inc                # OPNsense registration + monitor hook
+└── gw_monitor.inc                # OPNsense plugin registration + monitor hook
 
 /usr/local/opnsense/service/conf/actions.d/
-└── actions_gwmonitor.conf        # configd actions
+└── actions_gwmonitor.conf        # configd action definitions
 
 /usr/local/opnsense/mvc/app/
-├── models/OPNsense/GwMonitor/    # Data model
-├── controllers/OPNsense/GwMonitor/ # API controllers
-└── views/OPNsense/GwMonitor/     # Page template
+├── models/OPNsense/GwMonitor/    # Data model (XML + PHP)
+├── controllers/OPNsense/GwMonitor/ # API and page controllers
+└── views/OPNsense/GwMonitor/     # Volt template
 ```
-
----
-
-## Metrics
-
-The plugin uses `curl --no-keepalive -w %{time_starttransfer}` — time to first byte. For tunnel protocols this represents the real application-level latency, which includes establishing the connection through the tunnel.
-
-> RTT values will be higher than for standard ICMP gateways — this is expected. ICMP measures network RTT (1 round-trip), while HTTP TTFB includes TCP connection setup and server response time.
 
 ---
 
