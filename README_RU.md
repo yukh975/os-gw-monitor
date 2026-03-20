@@ -2,7 +2,7 @@
 
 ---
 
-# os-gw-monitor
+# os-gw-monitor 1.0.6
 
 **HTTP-мониторинг шлюзов для OPNsense** — плагин для отображения RTT, RTTd и Loss в `System → Gateways → Configuration` для шлюзов, которые не поддерживают ICMP-мониторинг штатным `dpinger`.
 

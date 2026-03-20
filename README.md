@@ -2,7 +2,7 @@
 
 ---
 
-# os-gw-monitor
+# os-gw-monitor 1.0.6
 
 **HTTP-based gateway monitoring plugin for OPNsense** — displays RTT, RTTd and Loss in `System → Gateways → Configuration` for gateways that do not support ICMP monitoring via the built-in `dpinger`.
 
