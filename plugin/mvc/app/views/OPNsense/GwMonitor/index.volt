@@ -21,7 +21,7 @@ $(document).ready(function () {
 </ul>
 
 <div style="padding: 6px 15px; font-size: 12px; color: var(--color-text-secondary, #888); border-bottom: 1px solid #eee;">
-    os-gw-monitor v1.0.8
+    os-gw-monitor v1.0.9
 </div>
 <div class="tab-content content-box">
     <div id="monitors" class="tab-pane fade in active">

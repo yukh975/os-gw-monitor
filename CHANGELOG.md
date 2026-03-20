@@ -4,6 +4,13 @@
 
 # Changelog
 
+## [1.0.9] — 2026-03-20
+- 🔒 Security: Added input validation in Python probe (gw_name, probe_host, probe_port, probe_if)
+- 🔒 Security: probe_port validated as integer in range 1–65535 in PHP and Python
+- 🔒 Security: probe_if validated against safe pattern `[a-zA-Z0-9_]+` in PHP
+- 🔒 Security: Fixed information disclosure — backend errors no longer expose raw configd output
+- 🐛 Fixed incorrect log filename (`tun2socks_socket.log` → `gwmonitor_<name>.log`)
+
 ## [1.0.8] — 2026-03-20
 - 🔒 Security: Unix socket permissions changed from `0o666` to `0o660`
 - 🔒 Security: Fixed TOCTOU race condition on socket creation

@@ -1,8 +1,37 @@
 #!/usr/local/bin/python3
-import socket, os, sys, threading, time, subprocess, logging, traceback
+import socket, os, sys, threading, time, subprocess, logging, traceback, re
+
+def _validate_args():
+    if len(sys.argv) < 9:
+        sys.stderr.write('Usage: gw_monitor_probe.py sock_path gw_name host port iface count interval timeout\n')
+        sys.exit(1)
+
+    gw = sys.argv[2]
+    if not re.match(r'^[a-zA-Z0-9_-]+$', gw):
+        sys.stderr.write('Invalid gw_name: {}\n'.format(gw))
+        sys.exit(1)
+
+    host = sys.argv[3]
+    if not re.match(r'^[a-zA-Z0-9._\[\]:-]+$', host):
+        sys.stderr.write('Invalid probe_host: {}\n'.format(host))
+        sys.exit(1)
+
+    port = int(sys.argv[4])
+    if not (1 <= port <= 65535):
+        sys.stderr.write('Invalid probe_port: {}\n'.format(port))
+        sys.exit(1)
+
+    iface = sys.argv[5]
+    if not re.match(r'^[a-zA-Z0-9_]+$', iface):
+        sys.stderr.write('Invalid probe_if: {}\n'.format(iface))
+        sys.exit(1)
+
+    return gw
+
+gw_name_raw = _validate_args()
 
 logging.basicConfig(
-    filename='/var/log/tun2socks_socket.log',
+    filename='/var/log/gwmonitor_{}.log'.format(gw_name_raw),
     level=logging.WARNING,
     format='%(asctime)s %(levelname)s %(message)s'
 )
@@ -13,7 +42,7 @@ def log_exception(msg):
 sock_path  = sys.argv[1]
 gw_name    = sys.argv[2]
 probe_host = sys.argv[3]
-probe_port = sys.argv[4]
+probe_port = int(sys.argv[4])
 probe_if   = sys.argv[5]
 count      = int(sys.argv[6])
 interval   = int(sys.argv[7])
@@ -36,7 +65,7 @@ def do_probe():
                  '--max-time', str(timeout),
                  '--output', '/dev/null',
                  '-w', '%{time_starttransfer}',
-                 'http://{}:{}/'.format(probe_host, probe_port)],
+                 'http://{}:{}/'.format(probe_host, int(probe_port))],
                 capture_output=True, text=True, timeout=timeout + 2
             )
             val = float(r.stdout.strip()) if r.stdout.strip() else 0.0

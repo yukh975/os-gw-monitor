@@ -47,16 +47,21 @@ function get_monitors(): array
     foreach ($nodes as $node) {
         $uuid = (string)$node->attributes()['uuid'] ?? null;
         if (!$uuid) continue;
-        $gw_name = (string)$node->gw_name;
+        $gw_name   = (string)$node->gw_name;
+        $probe_if  = (string)$node->probe_if;
+        $probe_port = (int)$node->probe_port;
+
         if (!is_valid_uuid($uuid) || !is_valid_gw_name($gw_name)) continue;
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $probe_if)) continue;
+        if ($probe_port < 1 || $probe_port > 65535) continue;
 
         $monitors[$uuid] = [
             'uuid'           => $uuid,
             'enabled'        => (string)$node->enabled === '1',
             'gw_name'        => $gw_name,
-            'probe_if'       => (string)$node->probe_if,
+            'probe_if'       => $probe_if,
             'probe_host'     => (string)$node->probe_host,
-            'probe_port'     => (string)$node->probe_port,
+            'probe_port'     => $probe_port,
             'probe_count'    => (int)$node->probe_count    ?: 5,
             'probe_interval' => (int)$node->probe_interval ?: 25,
             'probe_timeout'  => (int)$node->probe_timeout  ?: 5,

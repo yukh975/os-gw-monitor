@@ -48,7 +48,7 @@ class ServiceController extends ApiControllerBase
 
         $data = json_decode($output, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return ['result' => 'failed', 'message' => 'Invalid JSON: ' . $output];
+            return ['result' => 'failed', 'message' => 'Invalid response from backend'];
         }
 
         return $data;
