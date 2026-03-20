@@ -21,6 +21,9 @@
 - 🔒 Security: `gwmonitor-service.php` — added `stream_set_timeout(1)` on socket read to prevent indefinite blocking in `read_socket()`
 - 🔒 Security: `gwmonitor-service.php` — added `is_numeric()` validation on socket data parts before casting to int
 - 🔒 Security: `install.sh` — `pkill -f` replaced with PID-file-based killing via `_kill_monitors()` to prevent accidentally killing unrelated processes
+- 🔒 Security: `install.sh` — `_kill_monitors()` now verifies via `ps` that the PID belongs to `gw_monitor_probe` before sending signal (prevents killing recycled PIDs)
+- 🔒 Security: `gw_monitor_probe.py` — bare IPv6 addresses automatically wrapped in brackets in curl URL to prevent malformed requests
+- 🔒 Security: `gwmonitor-service.php` — reconfigure lock file removed after use (`@unlink`)
 - 🔧 Code: `gwmonitor-cleanup.php` — replaced `goto` with structured `if/else` block
 
 ## [1.0.12] — 2026-03-20

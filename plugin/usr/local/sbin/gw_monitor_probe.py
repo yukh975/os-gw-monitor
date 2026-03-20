@@ -127,7 +127,10 @@ def do_probe():
                  '--max-time', str(timeout),
                  '--output', '/dev/null',
                  '-w', '%{time_starttransfer}',
-                 'http://{}:{}/'.format(probe_host, int(probe_port))],
+                 'http://{}:{}/'.format(
+                     probe_host if probe_host.startswith('[') else
+                     ('[' + probe_host + ']' if ':' in probe_host else probe_host),
+                     int(probe_port))],
                 capture_output=True, text=True, timeout=timeout + 2
             )
             val = float(r.stdout.strip()) if r.stdout.strip() else 0.0

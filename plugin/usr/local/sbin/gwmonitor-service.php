@@ -273,6 +273,7 @@ switch ($action) {
         }
         flock($lock_fp, LOCK_UN);
         fclose($lock_fp);
+        @unlink($lock_file);
         echo "OK: reconfigured, {$started} monitor(s) started\n";
         break;
 
