@@ -30,6 +30,28 @@ function is_valid_uuid(string $uuid): bool
     return preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $uuid) === 1;
 }
 
+function is_valid_probe_host(string $host): bool
+{
+    if (empty($host)) return false;
+    if (!preg_match('/^[a-zA-Z0-9._\[\]:-]+$/', $host)) return false;
+
+    $blocked_names = ['localhost', 'localhost.localdomain', 'ip6-localhost', 'ip6-loopback'];
+    if (in_array(strtolower($host), $blocked_names, true)) return false;
+
+    $ip_str = trim($host, '[]');
+    if (filter_var($ip_str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+        $addr = ip2long($ip_str);
+        if (($addr & 0xFF000000) === 0x7F000000) return false; // 127.0.0.0/8 loopback
+        if (($addr & 0xFFFF0000) === 0xA9FE0000) return false; // 169.254.0.0/16 link-local
+        if ($addr === 0) return false;                          // 0.0.0.0
+    } elseif (filter_var($ip_str, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        if ($ip_str === '::1') return false;                    // IPv6 loopback
+        if (stripos($ip_str, 'fe80:') === 0) return false;     // IPv6 link-local
+    }
+
+    return true;
+}
+
 /**
  * Читает все инстансы из config.xml
  */
@@ -51,16 +73,19 @@ function get_monitors(): array
         $probe_if  = (string)$node->probe_if;
         $probe_port = (int)$node->probe_port;
 
+        $probe_host = (string)$node->probe_host;
+
         if (!is_valid_uuid($uuid) || !is_valid_gw_name($gw_name)) continue;
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $probe_if)) continue;
         if ($probe_port < 1 || $probe_port > 65535) continue;
+        if (!is_valid_probe_host($probe_host)) continue;
 
         $monitors[$uuid] = [
             'uuid'           => $uuid,
             'enabled'        => (string)$node->enabled === '1',
             'gw_name'        => $gw_name,
             'probe_if'       => $probe_if,
-            'probe_host'     => (string)$node->probe_host,
+            'probe_host'     => $probe_host,
             'probe_port'     => $probe_port,
             'probe_count'    => (int)$node->probe_count    ?: 5,
             'probe_interval' => (int)$node->probe_interval ?: 25,
@@ -181,6 +206,12 @@ function read_socket(string $gw_name): ?array
 switch ($action) {
 
     case 'reconfigure':
+        $lock_file = '/var/run/gwmonitor-reconfigure.lock';
+        $lock_fp   = fopen($lock_file, 'c');
+        if (!$lock_fp || !flock($lock_fp, LOCK_EX | LOCK_NB)) {
+            echo "ERROR: reconfigure already running\n";
+            exit(1);
+        }
         $monitors = get_monitors();
         // Останавливаем только наши инстансы (python3 gw_monitor_probe.py)
         // НЕ трогаем штатные dpinger процессы
@@ -197,6 +228,8 @@ switch ($action) {
                 $started++;
             }
         }
+        flock($lock_fp, LOCK_UN);
+        fclose($lock_fp);
         echo "OK: reconfigured, {$started} monitor(s) started\n";
         break;
 

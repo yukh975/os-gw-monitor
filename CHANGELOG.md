@@ -4,6 +4,12 @@
 
 # Changelog
 
+## [1.0.10] — 2026-03-20
+- 🔒 Security: SSRF protection — blocked loopback (127.0.0.0/8, ::1), link-local (169.254.0.0/16, fe80::/10) and unspecified addresses in Python probe and PHP service
+- 🔒 Security: Added `probe_host` validation in PHP (loopback/link-local/unspecified blocked)
+- 🔒 Security: Added exclusive lock on `reconfigure` to prevent race condition on concurrent calls
+- 🐛 Fixed: blocked hostnames list expanded (`localhost`, `ip6-localhost`, `ip6-loopback`)
+
 ## [1.0.9] — 2026-03-20
 - 🔒 Security: Added input validation in Python probe (gw_name, probe_host, probe_port, probe_if)
 - 🔒 Security: probe_port validated as integer in range 1–65535 in PHP and Python

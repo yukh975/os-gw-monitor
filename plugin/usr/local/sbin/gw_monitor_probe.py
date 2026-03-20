@@ -1,5 +1,18 @@
 #!/usr/local/bin/python3
-import socket, os, sys, threading, time, subprocess, logging, traceback, re
+import socket, os, sys, threading, time, subprocess, logging, traceback, re, ipaddress
+
+_BLOCKED_HOSTNAMES = {'localhost', 'localhost.localdomain', 'ip6-localhost', 'ip6-loopback'}
+
+def _is_safe_host(host):
+    if host.lower() in _BLOCKED_HOSTNAMES:
+        return False
+    try:
+        addr = ipaddress.ip_address(host.strip('[]'))
+        if addr.is_loopback or addr.is_link_local or addr.is_unspecified:
+            return False
+    except ValueError:
+        pass  # hostname — allow
+    return True
 
 def _validate_args():
     if len(sys.argv) < 9:
@@ -12,8 +25,8 @@ def _validate_args():
         sys.exit(1)
 
     host = sys.argv[3]
-    if not re.match(r'^[a-zA-Z0-9._\[\]:-]+$', host):
-        sys.stderr.write('Invalid probe_host: {}\n'.format(host))
+    if not re.match(r'^[a-zA-Z0-9._\[\]:-]+$', host) or not _is_safe_host(host):
+        sys.stderr.write('Invalid or blocked probe_host: {}\n'.format(host))
         sys.exit(1)
 
     port = int(sys.argv[4])
